@@ -2,16 +2,23 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { NoteService } from '@/lib/services/note.service'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Loader2 } from 'lucide-react'
 
 export default function NewNotePage() {
   const router = useRouter()
 
+  const createNoteMutation = useMutation(api.notes.createNote)
+
   useEffect(() => {
     async function createAndRedirect() {
-      const newNote = await NoteService.createNewNote('Untitled Note')
-      router.replace(`/notes/${newNote.id}`)
+      const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+      const noteId = await createNoteMutation({
+        title: 'Untitled Note',
+        localId: localId
+      })
+      router.replace(`/notes/${noteId}`)
     }
     createAndRedirect()
   }, [router])

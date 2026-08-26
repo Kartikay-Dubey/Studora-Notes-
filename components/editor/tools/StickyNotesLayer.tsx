@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { StickyNoteData } from '@/lib/db/studora-db'
+import type { StickyNoteData } from '../NoteEditor'
 import { Trash2, Copy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

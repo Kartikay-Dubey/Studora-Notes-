@@ -2,28 +2,25 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { NoteRepository } from '@/lib/repositories/note.repository'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id, Doc } from '@/convex/_generated/dataModel'
 import { SubjectModal } from '@/components/organization/SubjectModal'
 import { Bookmark, Plus, FileText, ArrowRight, Trash2, Edit2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { LocalSubject } from '@/lib/db/studora-db'
 
 export default function SubjectsPage() {
   const [modalOpen, setModalOpen] = useState(false)
-  const [subjectToEdit, setSubjectToEdit] = useState<LocalSubject | null>(null)
+  const [subjectToEdit, setSubjectToEdit] = useState<Doc<"subjects"> | null>(null)
 
-  const subjects = useLiveQuery(async () => {
-    return await NoteRepository.getAllSubjects()
-  })
+  const subjects = useQuery(api.subjects.list)
+  const notes = useQuery(api.notes.listAll)
 
-  const notes = useLiveQuery(async () => {
-    return await NoteRepository.getAllNotes()
-  })
+  const deleteSubjectMutation = useMutation(api.subjects.deleteSubject)
 
-  const handleEdit = (e: React.MouseEvent, sub: LocalSubject) => {
+  const handleEdit = (e: React.MouseEvent, sub: Doc<"subjects">) => {
     e.stopPropagation()
     e.preventDefault()
     setSubjectToEdit(sub)
@@ -33,7 +30,7 @@ export default function SubjectsPage() {
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     e.preventDefault()
-    await NoteRepository.deleteSubject(id)
+    await deleteSubjectMutation({ id: id as Id<"subjects"> })
   }
 
   const getSubjectNoteCount = (subjectId: string) => {
@@ -91,9 +88,9 @@ export default function SubjectsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {subjects.map((sub) => {
-            const count = getSubjectNoteCount(sub.id)
+            const count = getSubjectNoteCount(sub._id)
             return (
-              <Link key={sub.id} href={`/subjects/${sub.id}`}>
+              <Link key={sub._id} href={`/subjects/${sub._id}`}>
                 <Card className="group relative flex flex-col justify-between h-48 p-5 transition-fast hover:border-border-strong hover:shadow-md cursor-pointer border-l-4 border-l-accent">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
@@ -109,7 +106,7 @@ export default function SubjectsPage() {
                           <Edit2 className="size-3.5" />
                         </button>
                         <button
-                          onClick={(e) => handleDelete(e, sub.id)}
+                          onClick={(e) => handleDelete(e, sub._id)}
                           className="p-1 text-text-muted hover:text-destructive transition-fast"
                           title="Delete subject"
                         >

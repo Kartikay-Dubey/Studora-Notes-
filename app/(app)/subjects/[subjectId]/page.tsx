@@ -3,10 +3,9 @@
 import { use, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/lib/db/studora-db'
-import { NoteRepository } from '@/lib/repositories/note.repository'
-import { NoteService } from '@/lib/services/note.service'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id, Doc } from '@/convex/_generated/dataModel'
 import { TopicTree } from '@/components/organization/TopicTree'
 import { SubjectModal } from '@/components/organization/SubjectModal'
 import { MoveNoteDialog } from '@/components/organization/MoveNoteDialog'
@@ -14,7 +13,7 @@ import { ArrowLeft, Plus, FileText, Star, Trash2, Edit2, Loader2, FolderInput } 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { LocalNote } from '@/lib/db/studora-db'
+
 
 export default function SubjectDetailPage({
   params,
@@ -26,37 +25,33 @@ export default function SubjectDetailPage({
 
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [moveNoteModal, setMoveNoteModal] = useState<LocalNote | null>(null)
+  const [moveNoteModal, setMoveNoteModal] = useState<Doc<"notes"> | null>(null)
 
-  const subject = useLiveQuery(async () => {
-    return await db.subjects.get(subjectId)
-  }, [subjectId])
+  const subjectIdTyped = subjectId as Id<"subjects">
+  const subject = useQuery(api.subjects.getById, { id: subjectIdTyped })
+  const subjects = useQuery(api.subjects.list)
+  const topics = useQuery(api.topics.listBySubject, { subject_id: subjectId })
+  const rawNotes = useQuery(api.notes.listBySubject, { subject_id: subjectId })
 
-  const subjects = useLiveQuery(async () => {
-    return await NoteRepository.getAllSubjects()
-  })
+  const notes = rawNotes ? (selectedTopicId ? rawNotes.filter((n) => n.topic_id === selectedTopicId) : rawNotes) : undefined
 
-  const topics = useLiveQuery(async () => {
-    return await NoteRepository.getTopicsBySubject(subjectId)
-  }, [subjectId])
-
-  const notes = useLiveQuery(async () => {
-    const all = await NoteRepository.getNotesBySubject(subjectId)
-    if (selectedTopicId) {
-      return all.filter((n) => n.topic_id === selectedTopicId)
-    }
-    return all
-  }, [subjectId, selectedTopicId])
+  const createNoteMutation = useMutation(api.notes.createNote)
+  const archiveNoteMutation = useMutation(api.notes.archive)
 
   const handleCreateNoteInSubject = async () => {
-    const newNote = await NoteService.createNewNote('Untitled Note', subjectId)
-    router.push(`/notes/${newNote.id}`)
+    const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+    const noteId = await createNoteMutation({
+      title: 'Untitled Note',
+      localId: localId,
+      subject_id: subjectId
+    })
+    router.push(`/notes/${noteId}`)
   }
 
   const handleDeleteNote = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     e.preventDefault()
-    await NoteRepository.softDeleteNote(id)
+    await archiveNoteMutation({ id: id as Id<"notes"> })
   }
 
   if (subject === undefined) {
@@ -153,7 +148,7 @@ export default function SubjectDetailPage({
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {notes.map((note) => (
-                <Link key={note.id} href={`/notes/${note.id}`}>
+                <Link key={note._id} href={`/notes/${note._id}`}>
                   <Card className="group flex flex-col justify-between h-44 p-4 transition-fast hover:border-border-strong hover:shadow-md cursor-pointer">
                     <div className="space-y-1.5">
                       <div className="flex items-start justify-between gap-2">
@@ -183,7 +178,7 @@ export default function SubjectDetailPage({
                           <FolderInput className="size-3.5" />
                         </button>
                         <button
-                          onClick={(e) => handleDeleteNote(e, note.id)}
+                          onClick={(e) => handleDeleteNote(e, note._id)}
                           className="p-1 text-text-muted hover:text-destructive transition-fast"
                           title="Delete Note"
                         >

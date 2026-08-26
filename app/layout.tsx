@@ -1,3 +1,5 @@
+import { ClerkProvider } from '@clerk/nextjs'
+
 import type { Metadata } from 'next'
 import {
   Inter,
@@ -86,6 +88,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { ConvexClientProvider } from '@/components/providers/ConvexClientProvider'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -94,14 +98,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${lora.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${lora.variable} ${jetbrainsMono.variable} ${patrickHand.variable} ${kalam.variable} ${caveat.variable} ${indieFlower.variable} ${shadowsIntoLight.variable} ${handlee.variable}`}
       suppressHydrationWarning
     >
-      <body>
-        <a href="#main-content" className="skip-to-content">
-          Skip to content
-        </a>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
+        <ClerkProvider>
+          <a href="#main-content" className="skip-to-content">
+            Skip to content
+          </a>
+          <ConvexClientProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </ConvexClientProvider>
+        </ClerkProvider>
       </body>
     </html>
   )

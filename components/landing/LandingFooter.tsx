@@ -95,12 +95,12 @@ export function LandingFooter() {
             <p className="font-bold text-text-primary uppercase tracking-wider text-[11px]">Account</p>
             <ul className="space-y-2 text-text-secondary">
               <li>
-                <Link href="/login" className="hover:text-text-primary transition-fast">
+                <Link href="/sign-in" className="hover:text-text-primary transition-fast">
                   Sign In
                 </Link>
               </li>
               <li>
-                <Link href="/signup" className="hover:text-text-primary transition-fast">
+                <Link href="/sign-up" className="hover:text-text-primary transition-fast">
                   Create Demo Account
                 </Link>
               </li>

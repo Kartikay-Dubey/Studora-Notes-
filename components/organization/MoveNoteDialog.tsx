@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { NoteRepository } from '@/lib/repositories/note.repository'
-import type { LocalNote, LocalSubject } from '@/lib/db/studora-db'
+import { Doc } from '@/convex/_generated/dataModel'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { FolderInput } from 'lucide-react'
 
 interface MoveNoteDialogProps {
-  note: LocalNote | null
-  subjects: LocalSubject[]
+  note: Doc<"notes"> | null
+  subjects: Doc<"subjects">[]
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
@@ -20,16 +21,17 @@ export function MoveNoteDialog({ note, subjects, open, onOpenChange, onSuccess }
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>(note?.subject_id || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const moveToSubjectMutation = useMutation(api.notes.moveToSubject)
+
   if (!note) return null
 
   const handleSave = async () => {
     setIsSubmitting(true)
     try {
-      await NoteRepository.assignNoteToSubjectAndTopic(
-        note.id,
-        selectedSubjectId || null,
-        null
-      )
+      await moveToSubjectMutation({
+        id: note._id,
+        subject_id: selectedSubjectId || null,
+      })
       onOpenChange(false)
       if (onSuccess) onSuccess()
     } finally {
@@ -61,7 +63,7 @@ export function MoveNoteDialog({ note, subjects, open, onOpenChange, onSuccess }
             >
               <option value="">Unassigned</option>
               {subjects.map((sub) => (
-                <option key={sub.id} value={sub.id}>
+                <option key={sub._id} value={sub._id}>
                   {sub.name}
                 </option>
               ))}

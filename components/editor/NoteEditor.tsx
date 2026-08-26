@@ -29,20 +29,35 @@ import { BubbleToolbar } from './BubbleToolbar'
 import { SlashMenu } from './SlashMenu'
 import { StickyNotesLayer } from './tools/StickyNotesLayer'
 import { TagPicker } from '@/components/organization/TagPicker'
-import { NoteService } from '@/lib/services/note.service'
-import { NoteRepository } from '@/lib/repositories/note.repository'
 import { exportNoteToPdf } from '@/lib/utils/pdf-export'
 import { TableInsertDialog } from './tools/TableInsertDialog'
-import type { LocalNote, StickyNoteData } from '@/lib/db/studora-db'
+
+export interface StickyNoteData {
+  id: string
+  content: string
+  color: string
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation?: number
+  updated_at: string
+}
+
+const calculateReadingTime = (words: number) => Math.max(1, Math.ceil(words / 200))
+
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Doc } from '@/convex/_generated/dataModel'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Star, Download, Loader2, BookOpen, Edit3, Lock } from 'lucide-react'
+import { Star, Download, Loader2, BookOpen, Edit3, Lock, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NoteEditorProps {
-  initialNote: LocalNote
-  onSave?: (updatedNote: Partial<LocalNote>) => void
+  initialNote: Doc<"notes">
+  onSave?: (updatedNote: Partial<Doc<"notes">>) => void
 }
 
 export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
@@ -51,6 +66,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
 
   const [title, setTitle] = useState(initialNote.title || 'Untitled Note')
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
+  const [lastSavedTime, setLastSavedTime] = useState<number | null>(null)
   const [isReadingMode, setIsReadingMode] = useState(false)
   const [paperStyle, setPaperStyle] = useState<PaperStyle>('ruled')
   const [slashMenuOpen, setSlashMenuOpen] = useState(false)
@@ -64,10 +80,41 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
   const [tableDialogOpen, setTableDialogOpen] = useState(false)
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  const saveNoteContentMutation = useMutation(api.notes.saveNoteContent)
+  const updateStickyNotesMutation = useMutation(api.notes.updateStickyNotes)
+  const toggleFavoriteMutation = useMutation(api.notes.toggleFavorite)
+
+  const handleManualSave = async () => {
+    if (isReadingMode || !editor) return
+    setSaveStatus('saving')
+    try {
+      const words = editor.storage.characterCount.words()
+      const readingTime = calculateReadingTime(words)
+      const json = editor.getJSON() as Record<string, unknown>
+      const textContent = editor.getText()
+      const savedAt = await saveNoteContentMutation({
+        id: initialNote._id,
+        title,
+        content: json,
+        content_text: textContent,
+        word_count: words,
+        reading_time_mins: readingTime,
+      })
+      setLastSavedTime(savedAt)
+      setSaveStatus('saved')
+      if (onSave) {
+        onSave({ title, content: json })
+      }
+    } catch (err) {
+      console.error('[NoteEditor] Manual save failed:', err)
+      setSaveStatus('unsaved')
+    }
+  }
 
   // Auto-save handler
   const triggerAutoSave = useCallback(
-    (newTitle: string, jsonContent: Record<string, unknown> | null) => {
+    (newTitle: string, jsonContent: Record<string, unknown> | null, textContent: string, words: number, readingTime: number) => {
       setSaveStatus('saving')
 
       if (saveTimeoutRef.current) {
@@ -76,18 +123,37 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
 
       saveTimeoutRef.current = setTimeout(async () => {
         try {
-          await NoteService.saveNoteContent(initialNote.id, newTitle, jsonContent)
+          const savedAt = await saveNoteContentMutation({
+            id: initialNote._id,
+            title: newTitle,
+            content: jsonContent,
+            content_text: textContent,
+            word_count: words,
+            reading_time_mins: readingTime,
+          })
+          setLastSavedTime(savedAt)
           setSaveStatus('saved')
           if (onSave) {
             onSave({ title: newTitle, content: jsonContent })
           }
-        } catch {
+        } catch (err) {
+          console.error('[NoteEditor] Auto-save failed:', err)
           setSaveStatus('unsaved')
         }
-      }, 1000)
+      }, 2000)
     },
-    [initialNote.id, onSave]
+    [initialNote._id, onSave, saveNoteContentMutation]
   )
+
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+      // Assuming unmount save logic is managed by page state or we could fire an immediate save here
+      // if we weren't restricted by async unmount hooks.
+    }
+  }, [])
 
   const editor = useEditor({
     extensions: [
@@ -142,8 +208,24 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
       if (isReadingMode) return
       setSaveStatus('unsaved')
       const json = ed.getJSON() as Record<string, unknown>
-      triggerAutoSave(title, json)
+      const textContent = ed.getText()
+      const words = ed.storage.characterCount.words()
+      const readingTime = calculateReadingTime(words)
+      triggerAutoSave(title, json, textContent, words, readingTime)
     },
+    editorProps: {
+      attributes: {
+        class: 'focus:outline-none',
+      },
+      handleDOMEvents: {
+        blur: () => {
+          if (saveStatus === 'unsaved') {
+            handleManualSave()
+          }
+          return false
+        }
+      }
+    }
   })
 
   // Sync editable state when toggling reading mode
@@ -200,7 +282,10 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
     setTitle(newTitle)
     setSaveStatus('unsaved')
     if (editor) {
-      triggerAutoSave(newTitle, editor.getJSON() as Record<string, unknown>)
+      const textContent = editor.getText()
+      const words = editor.storage.characterCount.words()
+      const readingTime = calculateReadingTime(words)
+      triggerAutoSave(newTitle, editor.getJSON() as Record<string, unknown>, textContent, words, readingTime)
     }
   }
 
@@ -208,7 +293,11 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
     setStickyNotes(updated)
     setSaveStatus('saving')
     try {
-      await NoteRepository.updateStickyNotes(initialNote.id, updated)
+      const savedAt = await updateStickyNotesMutation({
+        id: initialNote._id,
+        sticky_notes: updated,
+      })
+      setLastSavedTime(savedAt)
       setSaveStatus('saved')
     } catch {
       setSaveStatus('unsaved')
@@ -252,7 +341,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
 
   const words = editor ? editor.storage.characterCount.words() : initialNote.word_count || 0
   const characters = editor ? editor.storage.characterCount.characters() : 0
-  const readingTime = NoteService.calculateReadingTime(words)
+  const readingTime = calculateReadingTime(words)
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background transition-all min-w-0 overflow-hidden">
@@ -272,6 +361,19 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
           />
 
           <div className="flex items-center gap-2 shrink-0 pl-2">
+            {!isReadingMode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleManualSave}
+                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                className="h-7 text-xs gap-1.5 font-medium shadow-3xs"
+                title="Save Changes"
+              >
+                <Save className="size-3 text-text-secondary" />
+                <span>Save</span>
+              </Button>
+            )}
             <Button
               variant="secondary"
               size="sm"
@@ -352,7 +454,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
         >
           {/* Real Sticky Notes Layer */}
           <StickyNotesLayer
-            noteId={initialNote.id}
+            noteId={initialNote._id}
             notes={stickyNotes}
             isReadingMode={isReadingMode}
             onNotesChange={handleStickyNotesChange}
@@ -377,7 +479,14 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
                 onClick={async () => {
                   const nextFav = !isFavorite
                   setIsFavorite(nextFav)
-                  await NoteRepository.toggleFavorite(initialNote.id)
+                  try {
+                    await toggleFavoriteMutation({
+                      id: initialNote._id,
+                      is_favorite: nextFav
+                    })
+                  } catch (e) {
+                    setIsFavorite(!nextFav)
+                  }
                 }}
                 className={cn(
                   'p-1.5 rounded transition-fast shrink-0',
@@ -400,7 +509,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
               <div className="flex items-center gap-2">
                 {!isReadingMode ? (
                   <TagPicker
-                    noteId={initialNote.id}
+                    noteId={initialNote._id}
                     tags={tags}
                     onTagsChange={(newTags) => setTags(newTags)}
                   />
@@ -463,7 +572,11 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
             <>
               <span className="size-1.5 rounded-full bg-emerald-500" />
               <span className="text-emerald-700 dark:text-emerald-400">
-                {isReadingMode ? 'Read-Only Mode' : 'Auto-saved locally'}
+                {isReadingMode 
+                  ? 'Read-Only Mode' 
+                  : lastSavedTime 
+                    ? `Last saved at ${new Date(lastSavedTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` 
+                    : 'Saved to cloud'}
               </span>
             </>
           )}

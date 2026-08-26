@@ -2,8 +2,9 @@
 
 import { use } from 'react'
 import Link from 'next/link'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '@/lib/db/studora-db'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+
 import { NoteEditor } from '@/components/editor/NoteEditor'
 import { ArrowLeft, Loader2, FileQuestion } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,10 +16,7 @@ export default function NoteDetailPage({
 }) {
   const { noteId } = use(params)
 
-  // Live reactive query for note by ID from Dexie IndexedDB
-  const note = useLiveQuery(async () => {
-    return await db.notes.get(noteId)
-  }, [noteId])
+  const note = useQuery(api.notes.getNote, { noteId })
 
   if (note === undefined) {
     return (

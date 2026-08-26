@@ -17,7 +17,8 @@ import {
 } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { NoteService } from '@/lib/services/note.service'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { useAuth } from '@/lib/hooks/useAuth'
 
 export function CommandPalette() {
@@ -26,6 +27,7 @@ export function CommandPalette() {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const { logout } = useAuth()
+  const createNoteMutation = useMutation(api.notes.createNote)
 
   // Global ⌘K / Ctrl+K listener
   useEffect(() => {
@@ -46,8 +48,12 @@ export function CommandPalette() {
       category: 'Actions',
       icon: Plus,
       perform: async () => {
-        const note = await NoteService.createNewNote('Untitled Note')
-        router.push(`/notes/${note.id}`)
+        const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+        const noteId = await createNoteMutation({
+          title: 'Untitled Note',
+          localId: localId
+        })
+        router.push(`/notes/${noteId}`)
       },
     },
     {
@@ -106,7 +112,7 @@ export function CommandPalette() {
       icon: LogOut,
       perform: async () => {
         await logout()
-        router.push('/login')
+        router.push('/sign-in')
       },
     },
   ]

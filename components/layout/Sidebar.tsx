@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { NoteService } from '@/lib/services/note.service'
-import { NoteRepository } from '@/lib/repositories/note.repository'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useQuery, useMutation } from 'convex/react'
+import { useConvexAuth } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { SignInButton, SignUpButton, UserButton, useUser, useClerk } from '@clerk/nextjs'
 import { SubjectModal } from '@/components/organization/SubjectModal'
 import {
   BookOpen,
@@ -19,6 +19,7 @@ import {
   Star,
   Trash2,
   LogOut,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { StudoraLogo } from '@/components/shared/StudoraLogo'
@@ -33,21 +34,35 @@ interface SidebarProps {
 export function Sidebar({ isCollapsed }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, logout } = useAuth()
+  const { user } = useUser()
+  const { signOut } = useClerk()
   const [subjectModalOpen, setSubjectModalOpen] = useState(false)
 
-  const subjects = useLiveQuery(async () => {
-    return await NoteRepository.getAllSubjects()
-  })
+  const subjects = useQuery(api.subjects.list)
+  const createNoteMutation = useMutation(api.notes.createNote)
+  const { isAuthenticated } = useConvexAuth()
+  const [isCreating, setIsCreating] = useState(false)
 
   const handleCreateNote = async () => {
-    const note = await NoteService.createNewNote('Untitled Note')
-    router.push(`/notes/${note.id}`)
+    if (!isAuthenticated || isCreating) return
+    setIsCreating(true)
+    try {
+      const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+      const noteId = await createNoteMutation({
+        title: 'Untitled Note',
+        localId: localId
+      })
+      router.push(`/notes/${noteId}`)
+    } catch (err) {
+      console.error('Failed to create note:', err)
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const handleSignOut = async () => {
-    await logout()
-    router.push('/login')
+    await signOut()
+    router.push('/')
   }
 
   return (
@@ -64,12 +79,13 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
         {/* New Note Button */}
         <Button
           onClick={handleCreateNote}
+          disabled={!isAuthenticated || isCreating}
           variant="primary"
           size="sm"
           className="w-full justify-center gap-2 font-semibold shadow-xs h-9 text-xs"
         >
-          <Plus className="size-4" />
-          <span>New Note</span>
+          {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+          <span>{isCreating ? 'Creating...' : 'New Note'}</span>
         </Button>
 
         {/* Quick Search Shortcut Box */}
@@ -147,7 +163,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
           <div className="space-y-0.5 text-xs">
             {subjects?.map((sub) => {
-              const isActive = pathname === `/subjects/${sub.id}`
+              const isActive = pathname === `/subjects/${sub._id}`
               const colorDot =
                 sub.color === 'indigo'
                   ? 'bg-blue-600'
@@ -161,8 +177,8 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
               return (
                 <Link
-                  key={sub.id}
-                  href={`/subjects/${sub.id}`}
+                  key={sub._id}
+                  href={`/subjects/${sub._id}`}
                   className={cn(
                     'flex items-center gap-2 rounded-[var(--radius-md)] px-2.5 py-1.5 font-medium transition-fast',
                     isActive ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
@@ -189,26 +205,40 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
       {/* Footer User Profile */}
       <div className="border-t border-border p-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-800 text-xs">
-            {user?.displayName?.[0] || 'D'}
+        {user ? (
+          <>
+            <div className="flex items-center gap-2 overflow-hidden">
+              <UserButton appearance={{ elements: { userButtonAvatarBox: "size-7" } }} />
+              <div className="truncate">
+                <p className="text-xs font-semibold text-text-primary truncate">{user.fullName || 'Student'}</p>
+                <p className="text-[10px] text-text-muted truncate">{user.primaryEmailAddress?.emailAddress || ''}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+            </div>
+          </>
+        ) : (
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-800 text-xs">
+                G
+              </div>
+              <div className="truncate">
+                <p className="text-xs font-semibold text-text-primary truncate">Guest Mode</p>
+                <div className="flex gap-2">
+                  <SignInButton mode="modal">
+                    <button className="text-[10px] text-accent hover:underline">Sign In</button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="text-[10px] text-accent hover:underline">Sign Up</button>
+                  </SignUpButton>
+                </div>
+              </div>
+            </div>
+            <ThemeToggle />
           </div>
-          <div className="truncate">
-            <p className="text-xs font-semibold text-text-primary truncate">{user?.displayName || 'Demo Student'}</p>
-            <p className="text-[10px] text-text-muted truncate">{user?.email || 'demo@studora.local'}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <button
-            onClick={handleSignOut}
-            className="p-1.5 text-text-muted hover:text-destructive transition-fast"
-            title="Sign Out"
-          >
-            <LogOut className="size-3.5" />
-          </button>
-        </div>
+        )}
       </div>
 
       <SubjectModal

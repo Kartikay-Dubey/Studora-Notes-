@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { NoteRepository } from '@/lib/repositories/note.repository'
-import type { LocalTopic } from '@/lib/db/studora-db'
+import { Doc, Id } from '@/convex/_generated/dataModel'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Folder, FolderPlus, Trash2, Edit2, ChevronRight, ChevronDown, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +11,7 @@ import { cn } from '@/lib/utils'
 
 interface TopicTreeProps {
   subjectId: string
-  topics: LocalTopic[]
+  topics: Doc<"topics">[]
   selectedTopicId?: string | null
   onSelectTopic: (topicId: string | null) => void
   onRefresh: () => void
@@ -28,18 +29,19 @@ export function TopicTree({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
 
+  const createTopicMutation = useMutation(api.topics.createTopic)
+  const updateTopicMutation = useMutation(api.topics.updateTopic)
+  const deleteTopicMutation = useMutation(api.topics.deleteTopic)
+
   const rootTopics = topics.filter((t) => !t.parent_id)
 
   const handleCreateTopic = async (parentId?: string | null) => {
     if (!newTopicName.trim()) return
 
-    const id = 'top-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)
-    await NoteRepository.createTopic({
-      id,
+    await createTopicMutation({
       subject_id: subjectId,
-      parent_id: parentId || null,
+      parent_id: parentId || undefined,
       name: newTopicName.trim(),
-      sort_order: Date.now(),
     })
 
     setNewTopicName('')
@@ -49,13 +51,13 @@ export function TopicTree({
 
   const handleSaveEdit = async (id: string) => {
     if (!editName.trim()) return
-    await NoteRepository.updateTopic(id, editName.trim())
+    await updateTopicMutation({ id: id as Id<"topics">, name: editName.trim() })
     setEditingId(null)
     onRefresh()
   }
 
   const handleDelete = async (id: string) => {
-    await NoteRepository.deleteTopic(id)
+    await deleteTopicMutation({ id: id as Id<"topics"> })
     onRefresh()
   }
 
@@ -108,26 +110,26 @@ export function TopicTree({
         </button>
 
         {rootTopics.map((topic) => {
-          const subTopics = topics.filter((t) => t.parent_id === topic.id)
-          const isSelected = selectedTopicId === topic.id
+          const subTopics = topics.filter((t) => t.parent_id === topic._id)
+          const isSelected = selectedTopicId === topic._id
 
           return (
-            <div key={topic.id} className="space-y-1">
+            <div key={topic._id} className="space-y-1">
               <div
                 className={cn(
                   'group flex items-center justify-between rounded-[var(--radius-sm)] px-2 py-1.5 text-xs transition-fast cursor-pointer',
                   isSelected ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
                 )}
-                onClick={() => onSelectTopic(topic.id)}
+                onClick={() => onSelectTopic(topic._id)}
               >
                 <div className="flex items-center gap-2 truncate">
                   <Folder className="size-3.5 shrink-0" />
-                  {editingId === topic.id ? (
+                  {editingId === topic._id ? (
                     <input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      onBlur={() => handleSaveEdit(topic.id)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(topic.id)}
+                      onBlur={() => handleSaveEdit(topic._id)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(topic._id)}
                       autoFocus
                       className="bg-transparent border-b border-accent outline-none text-xs"
                     />
@@ -140,7 +142,7 @@ export function TopicTree({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      setAddingChildToId(topic.id)
+                      setAddingChildToId(topic._id)
                     }}
                     className="p-0.5 text-text-muted hover:text-accent"
                     title="Add Sub-topic"
@@ -150,7 +152,7 @@ export function TopicTree({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      setEditingId(topic.id)
+                      setEditingId(topic._id)
                       setEditName(topic.name)
                     }}
                     className="p-0.5 text-text-muted hover:text-text-primary"
@@ -161,7 +163,7 @@ export function TopicTree({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleDelete(topic.id)
+                      handleDelete(topic._id)
                     }}
                     className="p-0.5 text-text-muted hover:text-destructive"
                     title="Delete Topic"
@@ -172,7 +174,7 @@ export function TopicTree({
               </div>
 
               {/* Child Sub-topic Inline Creator */}
-              {addingChildToId === topic.id && (
+              {addingChildToId === topic._id && (
                 <div className="flex items-center gap-1.5 pl-6 pt-1">
                   <Input
                     value={newTopicName}
@@ -181,11 +183,11 @@ export function TopicTree({
                     autoFocus
                     className="h-7 text-xs"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleCreateTopic(topic.id)
+                      if (e.key === 'Enter') handleCreateTopic(topic._id)
                       if (e.key === 'Escape') setAddingChildToId(null)
                     }}
                   />
-                  <Button size="sm" variant="primary" onClick={() => handleCreateTopic(topic.id)} className="h-7 text-xs px-2">
+                  <Button size="sm" variant="primary" onClick={() => handleCreateTopic(topic._id)} className="h-7 text-xs px-2">
                     Add
                   </Button>
                 </div>
@@ -194,18 +196,18 @@ export function TopicTree({
               {/* Render Sub-topics */}
               {subTopics.map((sub) => (
                 <div
-                  key={sub.id}
-                  onClick={() => onSelectTopic(sub.id)}
+                  key={sub._id}
+                  onClick={() => onSelectTopic(sub._id)}
                   className={cn(
                     'group flex items-center justify-between rounded-[var(--radius-sm)] pl-6 pr-2 py-1 text-[11px] transition-fast cursor-pointer',
-                    selectedTopicId === sub.id ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-muted hover:bg-surface-raised hover:text-text-primary'
+                    selectedTopicId === sub._id ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-muted hover:bg-surface-raised hover:text-text-primary'
                   )}
                 >
                   <span className="truncate">{sub.name}</span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleDelete(sub.id)
+                      handleDelete(sub._id)
                     }}
                     className="opacity-0 group-hover:opacity-100 p-0.5 text-text-muted hover:text-destructive"
                     title="Delete Sub-topic"

@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { NoteRepository } from '@/lib/repositories/note.repository'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Search as SearchIcon, FileText, ArrowRight, Star, Clock, Tag } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -12,18 +12,18 @@ import { Badge } from '@/components/ui/badge'
 export default function SearchPage() {
   const [query, setQuery] = useState('')
 
-  const searchResults = useLiveQuery(async () => {
-    if (!query.trim()) return []
-    return await NoteRepository.searchNotes(query)
-  }, [query])
+  const allNotes = useQuery(api.notes.listAll)
+  const subjects = useQuery(api.subjects.list)
 
-  const subjects = useLiveQuery(async () => {
-    return await NoteRepository.getAllSubjects()
-  })
+  const searchResults = allNotes ? (query.trim() ? allNotes.filter(n => 
+    n.title.toLowerCase().includes(query.toLowerCase()) || 
+    (n.content_text && n.content_text.toLowerCase().includes(query.toLowerCase())) ||
+    (n.tags && n.tags.some(t => t.toLowerCase().includes(query.toLowerCase())))
+  ) : []) : undefined
 
   const getSubjectName = (subjectId?: string | null) => {
     if (!subjectId || !subjects) return null
-    return subjects.find((s) => s.id === subjectId)
+    return subjects.find((s) => s._id === subjectId)
   }
 
   // Highlight matches in search snippets
@@ -113,11 +113,11 @@ export default function SearchPage() {
               }
 
               const noteHref = matchedSectionTitle
-                ? `/notes/${note.id}?heading=${encodeURIComponent(matchedSectionTitle)}`
-                : `/notes/${note.id}`
+                ? `/notes/${note._id}?heading=${encodeURIComponent(matchedSectionTitle)}`
+                : `/notes/${note._id}`
 
               return (
-                <Link key={note.id} href={noteHref}>
+                <Link key={note._id} href={noteHref}>
                   <Card className="p-4 transition-fast hover:border-border-strong hover:bg-surface-raised cursor-pointer group">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1.5 flex-1">

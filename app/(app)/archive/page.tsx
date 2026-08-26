@@ -1,28 +1,30 @@
 'use client'
 
 import Link from 'next/link'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { NoteRepository } from '@/lib/repositories/note.repository'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
 import { Archive, RotateCcw, Trash2, ArrowLeft, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
 export default function ArchivePage() {
-  const archivedNotes = useLiveQuery(async () => {
-    return await NoteRepository.getArchivedNotes()
-  })
+  const archivedNotes = useQuery(api.notes.listArchived)
+  const restoreMutation = useMutation(api.notes.restore)
+  const permanentlyDeleteMutation = useMutation(api.notes.permanentlyDelete)
+  const emptyArchiveMutation = useMutation(api.notes.emptyArchive)
 
   const handleRestore = async (id: string) => {
-    await NoteRepository.restoreNote(id)
+    await restoreMutation({ id: id as Id<"notes"> })
   }
 
   const handlePermanentDelete = async (id: string) => {
-    await NoteRepository.permanentlyDeleteNote(id)
+    await permanentlyDeleteMutation({ id: id as Id<"notes"> })
   }
 
   const handleEmptyArchive = async () => {
     if (confirm('Are you sure you want to permanently delete all archived notes? This cannot be undone.')) {
-      await NoteRepository.emptyArchive()
+      await emptyArchiveMutation()
     }
   }
 
@@ -76,7 +78,7 @@ export default function ArchivePage() {
       ) : (
         <div className="space-y-2">
           {archivedNotes.map((note) => (
-            <Card key={note.id} className="p-4 flex items-center justify-between gap-4">
+            <Card key={note._id} className="p-4 flex items-center justify-between gap-4">
               <div className="space-y-1 truncate">
                 <h3 className="text-sm font-semibold text-text-primary truncate">
                   {note.title || 'Untitled Note'}
@@ -91,7 +93,7 @@ export default function ArchivePage() {
 
               <div className="flex items-center gap-2 shrink-0">
                 <Button
-                  onClick={() => handleRestore(note.id)}
+                  onClick={() => handleRestore(note._id)}
                   variant="secondary"
                   size="sm"
                   className="h-8 text-xs gap-1.5"
@@ -101,7 +103,7 @@ export default function ArchivePage() {
                   <span>Restore</span>
                 </Button>
                 <Button
-                  onClick={() => handlePermanentDelete(note.id)}
+                  onClick={() => handlePermanentDelete(note._id)}
                   variant="ghost"
                   size="icon-sm"
                   className="size-8 text-text-muted hover:text-destructive"

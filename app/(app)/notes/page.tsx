@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { NoteService } from '@/lib/services/note.service'
-import { NoteRepository } from '@/lib/repositories/note.repository'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id, Doc } from '@/convex/_generated/dataModel'
 import { MoveNoteDialog } from '@/components/organization/MoveNoteDialog'
 import {
   Plus,
@@ -24,7 +24,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { LocalNote } from '@/lib/db/studora-db'
 import { cn } from '@/lib/utils'
 
 export default function NotesPage() {
@@ -32,53 +31,54 @@ export default function NotesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterMode, setFilterMode] = useState<'all' | 'starred'>('all')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
-  const [moveNoteTarget, setMoveNoteTarget] = useState<LocalNote | null>(null)
+  const [moveNoteTarget, setMoveNoteTarget] = useState<Doc<"notes"> | null>(null)
 
-  // Live query for all active notes
-  const notes = useLiveQuery(async () => {
-    let result = searchQuery.trim()
-      ? await NoteRepository.searchNotes(searchQuery)
-      : await NoteRepository.getAllNotes()
+  const allNotes = useQuery(api.notes.listAll)
+  const subjects = useQuery(api.subjects.list)
 
-    if (filterMode === 'starred') {
-      result = result.filter((n) => n.is_favorite)
+  const uniqueTags = Array.from(new Set((allNotes || []).flatMap(n => n.tags || [])))
+
+  const notes = allNotes ? allNotes.filter(n => {
+    if (searchQuery.trim() && !n.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+       return false
     }
-
-    if (selectedTag) {
-      result = result.filter((n) => n.tags?.includes(selectedTag))
+    if (filterMode === 'starred' && !n.is_favorite) {
+       return false
     }
+    if (selectedTag && (!n.tags || !n.tags.includes(selectedTag))) {
+       return false
+    }
+    return true
+  }) : undefined
 
-    return result
-  }, [searchQuery, filterMode, selectedTag])
-
-  const subjects = useLiveQuery(async () => {
-    return await NoteRepository.getAllSubjects()
-  })
-
-  const uniqueTags = useLiveQuery(async () => {
-    return await NoteRepository.getAllUniqueTags()
-  })
+  const createNoteMutation = useMutation(api.notes.createNote)
+  const archiveNoteMutation = useMutation(api.notes.archive)
+  const toggleFavoriteMutation = useMutation(api.notes.toggleFavorite)
 
   const handleCreateNote = async () => {
-    const newNote = await NoteService.createNewNote('Untitled Note')
-    router.push(`/notes/${newNote.id}`)
+    const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+    const noteId = await createNoteMutation({
+      title: 'Untitled Note',
+      localId: localId
+    })
+    router.push(`/notes/${noteId}`)
   }
 
   const handleDeleteNote = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     e.preventDefault()
-    await NoteRepository.softDeleteNote(id)
+    await archiveNoteMutation({ id: id as Id<"notes"> })
   }
 
-  const handleToggleFavorite = async (e: React.MouseEvent, id: string) => {
+  const handleToggleFavorite = async (e: React.MouseEvent, id: string, is_favorite: boolean) => {
     e.stopPropagation()
     e.preventDefault()
-    await NoteRepository.toggleFavorite(id)
+    await toggleFavoriteMutation({ id: id as Id<"notes">, is_favorite: !is_favorite })
   }
 
   const getSubjectName = (subjectId?: string | null) => {
     if (!subjectId || !subjects) return null
-    return subjects.find((s) => s.id === subjectId)
+    return subjects.find((s) => s._id === subjectId)
   }
 
   return (
@@ -192,7 +192,7 @@ export default function NotesPage() {
           {notes.map((note) => {
             const subject = getSubjectName(note.subject_id)
             return (
-              <Link key={note.id} href={`/notes/${note.id}`}>
+              <Link key={note._id} href={`/notes/${note._id}`}>
                 <Card className="group relative flex flex-col justify-between h-52 p-4 transition-fast hover:border-border-strong hover:shadow-md cursor-pointer">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
@@ -200,7 +200,7 @@ export default function NotesPage() {
                         {note.title || 'Untitled Note'}
                       </h3>
                       <button
-                        onClick={(e) => handleToggleFavorite(e, note.id)}
+                        onClick={(e) => handleToggleFavorite(e, note._id, note.is_favorite || false)}
                         className={cn(
                           'p-1 transition-fast rounded-sm',
                           note.is_favorite ? 'text-tertiary-amber' : 'text-text-muted hover:text-tertiary-amber opacity-0 group-hover:opacity-100'
@@ -251,7 +251,7 @@ export default function NotesPage() {
                           <FolderInput className="size-3.5" />
                         </button>
                         <button
-                          onClick={(e) => handleDeleteNote(e, note.id)}
+                          onClick={(e) => handleDeleteNote(e, note._id)}
                           className="p-1 text-text-muted hover:text-destructive transition-fast"
                           title="Archive note"
                         >

@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { NoteRepository } from '@/lib/repositories/note.repository'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
 import { Tag, Plus, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -17,6 +19,9 @@ export function TagPicker({ noteId, tags, onTagsChange }: TagPickerProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [newTag, setNewTag] = useState('')
 
+  const addTagMutation = useMutation(api.notes.addTag)
+  const removeTagMutation = useMutation(api.notes.removeTag)
+
   const handleAddTag = async () => {
     const clean = newTag.toLowerCase().trim()
     if (!clean || tags.includes(clean)) {
@@ -25,7 +30,7 @@ export function TagPicker({ noteId, tags, onTagsChange }: TagPickerProps) {
       return
     }
 
-    await NoteRepository.addTagToNote(noteId, clean)
+    await addTagMutation({ id: noteId as Id<"notes">, tag: clean })
     const updated = [...tags, clean]
     if (onTagsChange) onTagsChange(updated)
     setNewTag('')
@@ -33,7 +38,7 @@ export function TagPicker({ noteId, tags, onTagsChange }: TagPickerProps) {
   }
 
   const handleRemoveTag = async (tagToRemove: string) => {
-    await NoteRepository.removeTagFromNote(noteId, tagToRemove)
+    await removeTagMutation({ id: noteId as Id<"notes">, tag: tagToRemove })
     const updated = tags.filter((t) => t !== tagToRemove)
     if (onTagsChange) onTagsChange(updated)
   }

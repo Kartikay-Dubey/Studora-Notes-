@@ -42,7 +42,7 @@ export function UserMenu({ user }: UserMenuProps) {
   const handleSignOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/login')
+    router.push('/sign-in')
     router.refresh()
   }
 

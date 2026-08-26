@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { MobileNav } from '@/components/layout/MobileNav'
-import { UserMenu } from '@/components/layout/UserMenu'
 import { Button } from '@/components/ui/button'
 
 interface TopBarProps {
@@ -69,8 +68,6 @@ export function TopBar({ onOpenCommandPalette, user }: TopBarProps) {
           <Search className="size-4" />
         </Button>
 
-        {/* User Profile Menu */}
-        <UserMenu user={user} />
       </div>
     </header>
   )

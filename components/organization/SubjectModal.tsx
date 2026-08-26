@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { NoteRepository } from '@/lib/repositories/note.repository'
-import type { LocalSubject } from '@/lib/db/studora-db'
+import { Doc, Id } from '@/convex/_generated/dataModel'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,7 +15,7 @@ import { cn } from '@/lib/utils'
 interface SubjectModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  subjectToEdit?: LocalSubject | null
+  subjectToEdit?: Doc<"subjects"> | null
   onSuccess?: () => void
 }
 
@@ -39,6 +40,9 @@ export function SubjectModal({ open, onOpenChange, subjectToEdit, onSuccess }: S
   const [color, setColor] = useState('indigo')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const createSubjectMutation = useMutation(api.subjects.createSubject)
+  const updateSubjectMutation = useMutation(api.subjects.updateSubject)
+
   useEffect(() => {
     if (subjectToEdit) {
       setName(subjectToEdit.name)
@@ -58,19 +62,17 @@ export function SubjectModal({ open, onOpenChange, subjectToEdit, onSuccess }: S
     setIsSubmitting(true)
     try {
       if (subjectToEdit) {
-        await NoteRepository.updateSubject(subjectToEdit.id, {
+        await updateSubjectMutation({
+          id: subjectToEdit._id,
           name: name.trim(),
-          description: description.trim() || null,
+          description: description.trim() || undefined,
           color,
         })
       } else {
-        const id = 'sub-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6)
-        await NoteRepository.createSubject({
-          id,
+        await createSubjectMutation({
           name: name.trim(),
-          description: description.trim() || null,
+          description: description.trim() || undefined,
           color,
-          sort_order: Date.now(),
         })
       }
 

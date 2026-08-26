@@ -60,7 +60,7 @@ export function LandingNav() {
         <div className="hidden sm:flex items-center gap-3">
           <ThemeToggle />
           <Button asChild variant="ghost" size="sm" className="text-xs text-text-secondary hover:text-text-primary">
-            <Link href="/login">Sign In</Link>
+            <Link href="/sign-in">Sign In</Link>
           </Button>
           <Button asChild variant="primary" size="sm" className="text-xs gap-1.5 shadow-xs font-medium h-8">
             <Link href="/dashboard">
@@ -125,7 +125,7 @@ export function LandingNav() {
           </nav>
           <div className="pt-3 border-t border-border flex flex-col gap-2">
             <Button asChild variant="secondary" size="sm" className="w-full justify-center text-xs">
-              <Link href="/login">Sign In</Link>
+              <Link href="/sign-in">Sign In</Link>
             </Button>
             <Button asChild variant="primary" size="sm" className="w-full justify-center text-xs gap-1.5">
               <Link href="/dashboard">

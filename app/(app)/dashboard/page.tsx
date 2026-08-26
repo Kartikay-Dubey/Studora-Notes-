@@ -1,13 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { motion } from 'motion/react'
-import { useAuth } from '@/lib/hooks/useAuth'
-import { db, seedInitialLocalData } from '@/lib/db/studora-db'
-import { NoteService } from '@/lib/services/note.service'
-import { NoteRepository } from '@/lib/repositories/note.repository'
+import { useQuery, useMutation, useConvexAuth } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import {
   Plus,
   FileText,
@@ -19,32 +16,43 @@ import {
   BookOpen,
   RotateCcw,
   CheckSquare,
+  Loader2,
 } from 'lucide-react'
+import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user } = useUser()
 
-  const notes = useLiveQuery(async () => {
-    return await NoteRepository.getAllNotes()
-  })
-
-  const subjects = useLiveQuery(async () => {
-    return await NoteRepository.getAllSubjects()
-  })
+  const { isAuthenticated } = useConvexAuth()
+  const [isCreating, setIsCreating] = useState(false)
+  const notes = useQuery(api.notes.listAll)
+  const subjects = useQuery(api.subjects.list)
+  const createNoteMutation = useMutation(api.notes.createNote)
 
   const handleCreateNote = async () => {
-    const newNote = await NoteService.createNewNote('Untitled Study Note')
-    router.push(`/notes/${newNote.id}`)
+    if (!isAuthenticated || isCreating) return
+    setIsCreating(true)
+    try {
+      const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+      const noteId = await createNoteMutation({
+        title: 'Untitled Study Note',
+        localId: localId
+      })
+      router.push(`/notes/${noteId}`)
+    } catch (err) {
+      console.error('Failed to create note:', err)
+      alert('Could not create note. Please try again.')
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const handleResetSampleData = async () => {
-    await db.notes.clear()
-    await db.subjects.clear()
-    await seedInitialLocalData()
-    router.refresh()
+    // Resetting sample data is disabled in cloud mode
+    alert("Resetting sample data is disabled in cloud mode.")
   }
 
   const pinnedNotes = notes?.filter((n) => n.is_pinned || n.is_favorite) || []
@@ -60,7 +68,7 @@ export default function DashboardPage() {
             <span>Academic Study Workspace</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl font-sans">
-            Good morning, {user?.displayName || 'Demo Student'}
+            Good morning, {user?.fullName || 'Student'}
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
             What would you like to study or revise today?
@@ -68,9 +76,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button onClick={handleCreateNote} variant="primary" size="sm" className="gap-1.5 shadow-sm">
-            <Plus className="size-4" />
-            <span>New Note</span>
+          <Button onClick={handleCreateNote} disabled={!isAuthenticated || isCreating} variant="primary" size="sm" className="gap-1.5 shadow-sm">
+            {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+            <span>{isCreating ? 'Creating...' : 'New Note'}</span>
           </Button>
           <Button
             onClick={handleResetSampleData}
@@ -91,13 +99,14 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             onClick={handleCreateNote}
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group"
+            disabled={!isAuthenticated || isCreating}
+            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-accent-subtle text-accent">
-              <Plus className="size-4" />
+              {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
             </div>
             <div>
-              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast">New Note</p>
+              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast">{isCreating ? 'Creating...' : 'New Note'}</p>
               <p className="text-[10px] text-text-muted">Blank document</p>
             </div>
           </button>
@@ -155,7 +164,7 @@ export default function DashboardPage() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             {pinnedNotes.map((note) => (
-              <Link key={note.id} href={`/notes/${note.id}`}>
+              <Link key={note._id} href={`/notes/${note._id}`}>
                 <div className="group flex flex-col justify-between rounded-[var(--radius-md)] border border-border bg-surface p-4 transition-fast hover:border-border-strong hover:shadow-xs cursor-pointer h-32">
                   <div className="space-y-1">
                     <div className="flex items-start justify-between gap-2">
@@ -198,7 +207,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {subjects.map((sub) => (
-              <div key={sub.id} className="rounded-[var(--radius-md)] border border-border bg-surface p-3.5 space-y-1">
+              <div key={sub._id} className="rounded-[var(--radius-md)] border border-border bg-surface p-3.5 space-y-1">
                 <div className="flex items-center justify-between">
                   <Badge variant="accent" className="text-[10px] py-0 px-1.5">
                     {sub.name}
@@ -229,7 +238,7 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-2">
             {recentNotes.map((note) => (
-              <Link key={note.id} href={`/notes/${note.id}`}>
+              <Link key={note._id} href={`/notes/${note._id}`}>
                 <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3 transition-fast hover:border-border-strong hover:bg-surface-raised cursor-pointer group">
                   <div className="flex items-center gap-3">
                     <FileText className="size-4 text-text-muted group-hover:text-accent transition-fast" />
