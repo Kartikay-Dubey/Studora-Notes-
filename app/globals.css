@@ -1,0 +1,624 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Handlee&family=Indie+Flower&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Kalam:wght@300;400;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Patrick+Hand&family=Shadows+Into+Light&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import "tailwindcss";
+
+/* ─── Neo-Brutalism Theme Tokens ─────────────────────────────────────────── */
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #166534;
+  --primary-foreground: #ffffff;
+  --secondary: #eab308;
+  --secondary-foreground: #111827;
+  --muted: #f3f4f6;
+  --muted-foreground: #4b5563;
+  --accent: #1e40af;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #166534;
+  --chart-1: #166534;
+  --chart-2: #eab308;
+  --chart-3: #1e40af;
+  --chart-4: #15803d;
+  --chart-5: #9333ea;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #166534;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e40af;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #166534;
+
+  /* Component Alias Tokens */
+  --surface: #ffffff;
+  --surface-raised: #f8fafc;
+  --border-strong: #d1d5db;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-inverse: #ffffff;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: #eff6ff;
+  --secondary-sage: #15803d;
+  --tertiary-amber: #b45309;
+  --success: #16a34a;
+  --success-subtle: #f0fdf4;
+  --warning: #d97706;
+  --warning-subtle: #fffbeb;
+  --destructive-subtle: #fef2f2;
+
+  /* Subject Palette */
+  --subject-slate: #64748b;
+  --subject-cobalt: #1e40af;
+  --subject-teal: #0d9488;
+  --subject-sage: #15803d;
+  --subject-amber: #b45309;
+  --subject-rust: #c2410c;
+  --subject-rose: #be123c;
+  --subject-violet: #6b21a8;
+  --subject-indigo: #4338ca;
+  --subject-copper: #b45309;
+  --subject-stone: #57534e;
+  --subject-plum: #831843;
+
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-hand: 'Patrick Hand', 'Kalam', 'Caveat', cursive, sans-serif;
+  --font-hand-alt: 'Caveat', cursive, sans-serif;
+
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 9999px;
+
+  --shadow-x: 4px;
+  --shadow-y: 4px;
+  --shadow-blur: 0px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 1;
+  --shadow-color: hsl(0 0% 0%);
+  --shadow-3xs: 2px 2px 0px 0px hsl(0 0% 0% / 1.00);
+  --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 0% / 0.50);
+  --shadow-xs: 4px 4px 0px 0px hsl(0 0% 0% / 0.50);
+  --shadow-sm: 4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 1px 2px -1px hsl(0 0% 0% / 1.00);
+  --shadow: 4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 1px 2px -1px hsl(0 0% 0% / 1.00);
+  --shadow-md: 4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 2px 4px -1px hsl(0 0% 0% / 1.00);
+  --shadow-lg: 4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 4px 6px -1px hsl(0 0% 0% / 1.00);
+  --shadow-xl: 4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 8px 10px -1px hsl(0 0% 0% / 1.00);
+  --shadow-2xl: 4px 4px 0px 0px hsl(0 0% 0% / 2.50);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  --paper-line-height: 32px;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+  --primary: #4ade80;
+  --primary-foreground: #0f172a;
+  --secondary: #fde047;
+  --secondary-foreground: #0f172a;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #60a5fa;
+  --accent-foreground: #0f172a;
+  --destructive: #f87171;
+  --destructive-foreground: #0f172a;
+  --border: #334155;
+  --input: #334155;
+  --ring: #4ade80;
+  --chart-1: #4ade80;
+  --chart-2: #fde047;
+  --chart-3: #60a5fa;
+  --chart-4: #4ade80;
+  --chart-5: #c084fc;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #4ade80;
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #60a5fa;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #334155;
+  --sidebar-ring: #4ade80;
+
+  /* Component Alias Tokens in Dark */
+  --surface: #1e293b;
+  --surface-raised: #334155;
+  --border-strong: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0f172a;
+  --accent-hover: #3b82f6;
+  --accent-subtle: #1e3a8a;
+
+  --shadow-color: hsl(0 0% 100%);
+  --shadow-3xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.80);
+  --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.50);
+  --shadow-xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.50);
+  --shadow-sm: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 1px 2px -1px hsl(0 0% 100% / 1.00);
+  --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 1px 2px -1px hsl(0 0% 100% / 1.00);
+  --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 2px 4px -1px hsl(0 0% 100% / 1.00);
+  --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 4px 6px -1px hsl(0 0% 100% / 1.00);
+  --shadow-xl: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 8px 10px -1px hsl(0 0% 100% / 1.00);
+  --shadow-2xl: 4px 4px 0px 0px hsl(0 0% 100% / 2.50);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-subject-slate: var(--subject-slate);
+  --color-subject-cobalt: var(--subject-cobalt);
+  --color-subject-teal: var(--subject-teal);
+  --color-subject-sage: var(--subject-sage);
+  --color-subject-amber: var(--subject-amber);
+  --color-subject-rust: var(--subject-rust);
+  --color-subject-rose: var(--subject-rose);
+  --color-subject-violet: var(--subject-violet);
+  --color-subject-indigo: var(--subject-indigo);
+  --color-subject-copper: var(--subject-copper);
+  --color-subject-stone: var(--subject-stone);
+  --color-subject-plum: var(--subject-plum);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+  --font-family-sans: var(--font-sans);
+  --font-family-serif: var(--font-serif);
+  --font-family-mono: var(--font-mono);
+  --font-family-hand: var(--font-hand);
+  --font-family-hand-alt: var(--font-hand-alt);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-3xs: var(--shadow-3xs);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+/* ─── Student Notebook Canvas Styles & Paper Rules ───────────────────────── */
+/* ─── Paper Vertical Rhythm Token ─────────────────────────────────────────── */
+:root {
+  --paper-rule-spacing: 36px;    /* Base grid unit — body text line-height matches this */
+  --paper-rule-color: rgba(0, 0, 0, 0.08);   /* Subtle, light academic notebook lines */
+  --paper-rule-color-dark: rgba(255, 255, 255, 0.08);
+
+  /* Academic Heading Color Hierarchy */
+  --heading-title-color: #166534;   /* Deep academic green — Note title (strongest anchor) */
+  --heading-h1-color: #1d4ed8;      /* Rich cobalt/indigo — H1 */
+  --heading-h2-color: #b45309;      /* Warm academic amber/orange — H2 */
+  --heading-h3-color: #0f766e;      /* Teal/muted blue-green — H3 */
+}
+
+.dark {
+  --paper-rule-color: rgba(255, 255, 255, 0.08);
+  --heading-title-color: #4ade80;   /* Fresh academic green in dark */
+  --heading-h1-color: #60a5fa;      /* Vibrant cobalt blue in dark */
+  --heading-h2-color: #fb923c;      /* Soft warm amber in dark */
+  --heading-h3-color: #2dd4bf;      /* Fresh teal in dark */
+}
+
+.notebook-page {
+  background-color: var(--background);
+  min-height: 100%;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.dark .notebook-page {
+  background-color: var(--surface);
+}
+
+/* 1. Ruled Paper Style — subtle light lines, 36px pitch to give headings room */
+.notebook-page.paper-ruled,
+.notebook-page:not(.paper-grid):not(.paper-dotted):not(.paper-blank) {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(var(--paper-rule-spacing) - 1px),
+    var(--paper-rule-color) calc(var(--paper-rule-spacing) - 1px),
+    var(--paper-rule-color) var(--paper-rule-spacing)
+  );
+  background-size: 100% var(--paper-rule-spacing);
+  background-position: 0 0;
+}
+
+.dark .notebook-page.paper-ruled,
+.dark .notebook-page:not(.paper-grid):not(.paper-dotted):not(.paper-blank) {
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(var(--paper-rule-spacing) - 1px),
+    var(--paper-rule-color-dark) calc(var(--paper-rule-spacing) - 1px),
+    var(--paper-rule-color-dark) var(--paper-rule-spacing)
+  );
+  background-size: 100% var(--paper-rule-spacing);
+  background-position: 0 0;
+}
+
+/* 2. Grid Paper Style */
+.notebook-page.paper-grid {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .notebook-page.paper-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 3. Dotted Paper Style */
+.notebook-page.paper-dotted {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .notebook-page.paper-dotted {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 4. Blank Paper Style */
+.notebook-page.paper-blank {
+  background-image: none !important;
+}
+
+/* ─── Tiptap ProseMirror Custom Styles with Functional Lists ─────────────── */
+.ProseMirror {
+  outline: none !important;
+  min-height: 550px;
+  font-family: var(--writing-font, var(--font-hand));
+  font-size: 18px;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  /* Body line-height matches paper rule pitch exactly */
+  line-height: var(--paper-rule-spacing);
+}
+
+.ProseMirror p {
+  margin: 0;
+  line-height: var(--paper-rule-spacing);
+  min-height: var(--paper-rule-spacing);
+}
+
+.ProseMirror span[style*="font-size"] {
+  display: inline;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+/* H1 — 2 rule-pitches tall + 1 rule-pitch top margin = never clips a ruled line */
+.ProseMirror h1 {
+  font-family: inherit;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: calc(var(--paper-rule-spacing) * 2);   /* 72px: 2 grid rows */
+  margin-top: calc(var(--paper-rule-spacing) * 1.5);  /* 54px: 1.5 rows above */
+  margin-bottom: 0;
+  padding-bottom: 0;
+  color: var(--heading-h1-color);
+}
+
+/* H2 — 1.5 rule-pitches + 1 pitch top margin */
+.ProseMirror h2 {
+  font-family: inherit;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: calc(var(--paper-rule-spacing) * 1.5); /* 54px: 1.5 rows */
+  margin-top: var(--paper-rule-spacing);               /* 36px: 1 row above */
+  margin-bottom: 0;
+  color: var(--heading-h2-color);
+}
+
+/* H3 — snug but on-grid */
+.ProseMirror h3 {
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: var(--paper-rule-spacing);              /* 36px: 1 row */
+  margin-top: var(--paper-rule-spacing);               /* 36px: 1 row above */
+  margin-bottom: 0;
+  color: var(--heading-h3-color);
+}
+
+/* Functional Ordered Lists (1., 2., 3.) */
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.75rem !important;
+  margin: 0;
+}
+
+.ProseMirror ol li {
+  line-height: var(--paper-rule-spacing);
+  min-height: var(--paper-rule-spacing);
+  margin: 0;
+  padding-left: 0.25rem;
+}
+
+/* Functional Bullet Lists */
+.ProseMirror ul:not([data-type="taskList"]) {
+  list-style-type: disc !important;
+  padding-left: 1.75rem !important;
+  margin: 0;
+}
+
+.ProseMirror ul:not([data-type="taskList"]) li {
+  line-height: var(--paper-rule-spacing);
+  min-height: var(--paper-rule-spacing);
+  margin: 0;
+  padding-left: 0.25rem;
+}
+
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: var(--paper-rule-spacing);
+  min-height: var(--paper-rule-spacing);
+  margin: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  user-select: none;
+  cursor: pointer;
+}
+
+.ProseMirror blockquote {
+  border-left: 4px solid var(--border);
+  padding-left: 1rem;
+  font-style: italic;
+  margin: var(--paper-rule-spacing) 0;
+  background: var(--muted);
+  border-radius: var(--radius);
+  line-height: var(--paper-rule-spacing);
+  padding-top: calc(var(--paper-rule-spacing) / 4);
+  padding-bottom: calc(var(--paper-rule-spacing) / 4);
+}
+
+.ProseMirror pre {
+  background: var(--foreground);
+  color: var(--background);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin: var(--paper-rule-spacing) 0;
+  overflow-x: auto;
+  line-height: 1.5;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: var(--paper-rule-spacing) 0;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 2px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.ProseMirror table th {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  font-weight: 700;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-style: italic;
+}
+
+/* ─── Accessibility: Skip to content ─────────────────────────────────────── */
+.skip-to-content {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  padding: 8px 16px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  z-index: 99999;
+  border-radius: var(--radius);
+  transition: none;
+}
+
+.skip-to-content:focus {
+  top: 12px;
+  left: 12px;
+}
+
+/* ─── Print Styles — Clean Document Export (No Chrome/Sidebar) ─────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+
+  /* Completely unconstrain root layout & containers during printing */
+  html,
+  body,
+  #main-content,
+  .h-screen,
+  .w-screen,
+  .overflow-hidden,
+  .overflow-y-auto,
+  .flex-1 {
+    height: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+    position: static !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide all application chrome, navigation, toolbars, buttons, dialogs */
+  aside,
+  header,
+  nav,
+  .no-print,
+  button,
+  .bubble-menu,
+  .slash-menu,
+  [role="dialog"],
+  [data-radix-popper-content-wrapper],
+  .fixed,
+  .sticky {
+    display: none !important;
+  }
+
+  /* Target export container */
+  #studora-note-sheet,
+  .notebook-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .ProseMirror {
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Prevent awkward page breaks inside blocks */
+  .ProseMirror h1,
+  .ProseMirror h2,
+  .ProseMirror h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .ProseMirror p,
+  .ProseMirror blockquote,
+  .ProseMirror table,
+  .ProseMirror pre,
+  [data-type="studentBlock"],
+  [data-type="diagramBlock"] {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+

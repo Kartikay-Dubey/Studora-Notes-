@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background Notebook Page Shield -->
+  <path
+    d="M32 6 C42 6, 52 10, 52 20 V44 C52 50, 44 58, 32 58 C20 58, 12 50, 12 44 V20 C12 10, 22 6, 32 6 Z"
+    fill="#f0fdf4"
+    stroke="#166534"
+    stroke-width="3"
+    stroke-linejoin="round"
+  />
+  <!-- Stylized Book Ribbon tail dropping down at bottom -->
+  <path
+    d="M32 34 V48 L26 43.5 L20 48"
+    stroke="#d97706"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <!-- Elegant bookmark ribbon winding into an 'S' inside the page -->
+  <path
+    d="M22 22 H42 C47 22, 47 28, 42 28 H22 C17 28, 17 34, 22 34 H42"
+    stroke="#d97706"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <!-- Sparkle in top-right -->
+  <path
+    d="M48 10 H52 M50 8 V12"
+    stroke="#d97706"
+    stroke-width="1.5"
+    stroke-linecap="round"
+  />
+</svg>
