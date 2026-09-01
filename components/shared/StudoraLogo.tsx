@@ -25,14 +25,15 @@ export function StudoraMark({
   'aria-hidden': ariaHidden,
 }: StudoraMarkProps) {
   /* Palette depending on theme */
-  const ink = theme === 'dark' ? '#4ade80' : theme === 'mono' ? 'currentColor' : '#166534'
-  const pageLeft = theme === 'dark' ? '#1e2d24' : theme === 'mono' ? 'transparent' : '#f0fdf4'
-  const gold = theme === 'mono' ? 'currentColor' : '#d97706'
+  const ink = theme === 'dark' ? '#E2E8F0' : theme === 'mono' ? 'currentColor' : '#0B192C'
+  const greenS = theme === 'mono' ? 'currentColor' : '#16A34A'
+  const bluePrimary = theme === 'mono' ? 'currentColor' : '#2563EB'
+  const blueLight = theme === 'mono' ? 'currentColor' : '#60A5FA'
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 64"
+      viewBox="0 0 100 100"
       width={size}
       height={size}
       fill="none"
@@ -41,39 +42,40 @@ export function StudoraMark({
       role={ariaHidden ? undefined : 'img'}
       className={cn('shrink-0', className)}
     >
-      {/* ── Background Notebook Page Shield */}
-      <path
-        d="M32 6 C42 6, 52 10, 52 20 V44 C52 50, 44 58, 32 58 C20 58, 12 50, 12 44 V20 C12 10, 22 6, 32 6 Z"
-        fill={pageLeft}
-        stroke={ink}
-        strokeWidth="3"
+      {/* ── Bookmark ── */}
+      <path d="M 22 80 L 22 95 L 28 90 L 34 95 L 34 80 Z" fill={bluePrimary} />
+      
+      {/* ── Notebook Outline ── */}
+      <path 
+        d="M 52 35 L 52 25 C 52 19.5 47.5 15 42 15 L 20 15 C 14.5 15 10 19.5 10 25 L 10 75 C 10 80.5 14.5 85 20 85 L 42 85 C 47.5 85 52 80.5 52 75 L 52 70" 
+        fill="none" 
+        stroke={ink} 
+        strokeWidth="5" 
+        strokeLinecap="round" 
         strokeLinejoin="round"
       />
-      {/* ── Stylized Book Ribbon tail dropping down at bottom */}
-      <path
-        d="M32 34 V48 L26 43.5 L20 48"
-        stroke={gold}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      {/* ── Elegant bookmark ribbon winding into an 'S' inside the page */}
-      <path
-        d="M22 22 H42 C47 22, 47 28, 42 28 H22 C17 28, 17 34, 22 34 H42"
-        stroke={gold}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      {/* ── Sparkle in top-right to represent insight/knowledge */}
-      <path
-        d="M48 10 H52 M50 8 V12"
-        stroke={gold}
-        strokeWidth="1.5"
+      
+      {/* ── Horizontal line ── */}
+      <line x1="20" y1="70" x2="42" y2="70" stroke={ink} strokeWidth="5" strokeLinecap="round"/>
+
+      {/* ── The "S" ── */}
+      <path 
+        d="M 40 32 C 40 28 36 25 31 25 C 26 25 22 28 22 32 C 22 38 40 38 40 44 C 40 48 36 51 31 51 C 26 51 22 48 22 44" 
+        fill="none" 
+        stroke={greenS} 
+        strokeWidth="7.5" 
         strokeLinecap="round"
       />
+
+      {/* ── Pen ── */}
+      <g transform="translate(60, 48) rotate(15)">
+        {/* Tip */}
+        <path d="M -5 15 L 0 28 L 5 15 Z" fill={blueLight} stroke={ink} strokeWidth="4" strokeLinejoin="round"/>
+        {/* Body */}
+        <rect x="-5" y="-20" width="10" height="35" fill={bluePrimary} stroke={ink} strokeWidth="4" strokeLinejoin="round"/>
+        {/* Clicker */}
+        <path d="M -2.5 -20 L -2.5 -26 C -2.5 -28 2.5 -28 2.5 -26 L 2.5 -20" fill={bluePrimary} stroke={ink} strokeWidth="4" strokeLinejoin="round"/>
+      </g>
     </svg>
   )
 }
@@ -127,13 +129,13 @@ export function StudoraLogo({
 
   const wordmarkColor =
     theme === 'dark'
-      ? 'text-blue-100'
+      ? 'text-white'
       : theme === 'mono'
       ? 'text-current'
-      : 'text-[#1E3A7B]'
+      : 'text-[#0B192C]'
 
   const taglineColor =
-    theme === 'dark' ? 'text-blue-200/60' : 'text-[#1E3A7B]/50'
+    theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
 
   /* ── Icon only */
   if (variant === 'icon') {
@@ -168,7 +170,7 @@ export function StudoraLogo({
   return (
     <div
       className={cn('flex items-center gap-2 select-none', className)}
-      aria-label="Studora — Your Study Workspace"
+      aria-label="Studora — Write. Organize. Understand."
     >
       <StudoraMark
         size={markSizeMap[size]}
@@ -186,15 +188,22 @@ export function StudoraLogo({
           Studora
         </span>
         {showTagline && (
-          <span
-            className={cn(
-              'font-sans uppercase tracking-widest font-medium mt-0.5',
-              taglineSizeMap[size],
-              taglineColor
-            )}
-          >
-            Your Study Workspace
-          </span>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span
+              className={cn(
+                'font-sans font-medium',
+                taglineSizeMap[size],
+                taglineColor
+              )}
+            >
+              Write. Organize. Understand.
+            </span>
+            <div className="flex items-center gap-0.5">
+              <div className="size-1.5 rounded-full bg-[#16A34A]" />
+              <div className="size-1.5 rounded-full bg-[#2563EB]" />
+              <div className="size-1.5 rounded-full bg-[#F59E0B]" />
+            </div>
+          </div>
         )}
       </div>
     </div>

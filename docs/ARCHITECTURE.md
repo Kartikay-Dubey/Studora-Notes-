@@ -46,7 +46,7 @@
 | Reactive Hooks | `dexie-react-hooks` | Live reactive UI updates on local note mutations |
 | Repository Abstraction | `NoteRepository` | Decouples editor UI from IndexedDB storage for seamless future Supabase cloud sync |
 | Backend / Cloud | Supabase (@supabase/ssr) | Auth + Remote Sync PostgreSQL + Storage (connected in later cloud phases) |
-| Validation | Zod | Schema-first validation for auth and note data models |
+| Validati  on | Zod | Schema-first validation for auth and note data models |
 
 ### 2.4 Features
 
