@@ -42,21 +42,21 @@ export function AppShell({ children, user }: AppShellProps) {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background">
-      {/* Sidebar Navigation */}
-      <div className="flex shrink-0">
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      {/* Desktop Sidebar Navigation (Hidden on mobile < md) */}
+      <div className="hidden md:flex shrink-0">
         <Sidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse} />
       </div>
 
       {/* Main Content Viewport */}
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0 w-full">
         {!isEditorPage && (
           <TopBar onOpenCommandPalette={() => setCommandPaletteOpen(true)} user={user} />
         )}
         <main
           className={cn(
-            'flex-1 overflow-y-auto scrollbar-none min-w-0',
-            isEditorPage ? 'p-0 h-full flex flex-col' : 'p-6'
+            'flex-1 overflow-y-auto scrollbar-none min-w-0 w-full',
+            isEditorPage ? 'p-0 h-full flex flex-col' : 'p-3 sm:p-6'
           )}
           id="main-content"
         >
@@ -64,7 +64,7 @@ export function AppShell({ children, user }: AppShellProps) {
         </main>
       </div>
 
-      {/* Command Palette Modal */}
+      {/* Global Command Palette Modal */}
       <CommandPalette />
     </div>
   )

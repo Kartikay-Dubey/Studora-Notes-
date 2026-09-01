@@ -41,7 +41,7 @@ export function MoveNoteDialog({ note, subjects, open, onOpenChange, onSuccess }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm p-6 select-none rounded-[var(--radius-xl)] border-border bg-surface-raised shadow-xl">
+      <DialogContent className="max-w-sm p-4 sm:p-6 select-none rounded-[var(--radius-xl)] border-border bg-surface-raised shadow-xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold flex items-center gap-2">
             <FolderInput className="size-4 text-accent" />

@@ -34,7 +34,7 @@ export function LandingNav() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between">
         {/* Left: Studora Logo */}
         <Link href="/" className="flex items-center group hover:opacity-90 transition-opacity" aria-label="Studora — home">
-          <StudoraLogo variant="full" size="sm" theme="light" />
+          <StudoraLogo variant="full" size="sm" />
         </Link>
 
         {/* Center: Desktop Nav Links */}

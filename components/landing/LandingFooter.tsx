@@ -34,7 +34,7 @@ export function LandingFooter() {
         <div className="mx-auto max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-8 text-xs">
           {/* Col 1: Brand */}
           <div className="space-y-3 col-span-2 md:col-span-1">
-            <StudoraLogo variant="full" size="sm" theme="light" showTagline />
+            <StudoraLogo variant="full" size="sm" showTagline />
             <p className="text-text-muted leading-relaxed text-[11px]">
               The calm, distraction-free digital notebook and study workspace designed for students.
             </p>

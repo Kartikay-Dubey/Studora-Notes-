@@ -3,23 +3,19 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useQuery, useMutation } from 'convex/react'
-import { useConvexAuth } from 'convex/react'
+import { useQuery, useMutation, useConvexAuth } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { SignInButton, SignUpButton, UserButton, useUser, useClerk } from '@clerk/nextjs'
+import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
 import { SubjectModal } from '@/components/organization/SubjectModal'
 import {
-  BookOpen,
   LayoutDashboard,
   FileText,
-  Bookmark,
   Search,
-  Archive,
   Plus,
   Star,
   Trash2,
-  LogOut,
   Loader2,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { StudoraLogo } from '@/components/shared/StudoraLogo'
@@ -29,13 +25,14 @@ import { cn } from '@/lib/utils'
 interface SidebarProps {
   isCollapsed?: boolean
   onToggleCollapse?: () => void
+  onNavigate?: () => void
+  isMobileDrawer?: boolean
 }
 
-export function Sidebar({ isCollapsed }: SidebarProps) {
+export function Sidebar({ isCollapsed, onNavigate, isMobileDrawer }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useUser()
-  const { signOut } = useClerk()
   const [subjectModalOpen, setSubjectModalOpen] = useState(false)
 
   const subjects = useQuery(api.subjects.list)
@@ -50,8 +47,9 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
       const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
       const noteId = await createNoteMutation({
         title: 'Untitled Note',
-        localId: localId
+        localId: localId,
       })
+      if (onNavigate) onNavigate()
       router.push(`/notes/${noteId}`)
     } catch (err) {
       console.error('Failed to create note:', err)
@@ -60,22 +58,45 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
+  const handleLinkClick = () => {
+    if (onNavigate) {
+      onNavigate()
+    }
   }
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-border bg-surface text-text-primary select-none shrink-0 overflow-hidden font-sans">
+    <aside
+      className={cn(
+        'flex flex-col bg-surface text-text-primary select-none font-sans min-w-0',
+        isMobileDrawer
+          ? 'h-full w-full'
+          : 'h-screen w-64 border-r border-border shrink-0 overflow-hidden'
+      )}
+    >
       {/* Header Branding */}
-      <div className="flex h-14 items-center px-4 border-b border-border">
-        <Link href="/dashboard" className="flex items-center hover:opacity-90 transition-opacity" aria-label="Studora workspace">
-          <StudoraLogo variant="full" size="sm" theme="light" />
+      <div className="flex h-14 items-center justify-between px-4 border-b border-border shrink-0">
+        <Link
+          href="/dashboard"
+          onClick={handleLinkClick}
+          className="flex items-center hover:opacity-90 transition-opacity"
+          aria-label="Studora workspace"
+        >
+          <StudoraLogo variant="full" size="sm" />
         </Link>
+
+        {isMobileDrawer && onNavigate && (
+          <button
+            onClick={onNavigate}
+            className="p-1.5 rounded-[var(--radius-sm)] text-text-muted hover:text-text-primary hover:bg-surface-raised transition-fast"
+            aria-label="Close sidebar drawer"
+          >
+            <X className="size-5" />
+          </button>
+        )}
       </div>
 
       {/* Main Sidebar Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-none">
+      <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-none min-w-0">
         {/* New Note Button */}
         <Button
           onClick={handleCreateNote}
@@ -91,6 +112,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
         {/* Quick Search Shortcut Box */}
         <Link
           href="/search"
+          onClick={handleLinkClick}
           className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-surface-raised px-3 py-1.5 text-xs text-text-muted hover:border-border-strong transition-fast"
         >
           <div className="flex items-center gap-2">
@@ -104,13 +126,18 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
         {/* Section: WORKSPACE */}
         <div className="space-y-1">
-          <p className="px-2 text-[10px] font-bold text-text-muted uppercase tracking-wider">Workspace</p>
+          <p className="px-2 text-[10px] font-bold text-text-muted uppercase tracking-wider">
+            Workspace
+          </p>
           <nav className="space-y-0.5 text-xs">
             <Link
               href="/dashboard"
+              onClick={handleLinkClick}
               className={cn(
                 'flex items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-1.5 font-medium transition-fast',
-                pathname === '/dashboard' ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
+                pathname === '/dashboard'
+                  ? 'bg-accent-subtle text-accent font-semibold'
+                  : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
               )}
             >
               <LayoutDashboard className="size-3.5" />
@@ -119,9 +146,12 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
             <Link
               href="/notes"
+              onClick={handleLinkClick}
               className={cn(
                 'flex items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-1.5 font-medium transition-fast',
-                pathname === '/notes' ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
+                pathname === '/notes'
+                  ? 'bg-accent-subtle text-accent font-semibold'
+                  : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
               )}
             >
               <FileText className="size-3.5" />
@@ -130,6 +160,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
             <Link
               href="/notes"
+              onClick={handleLinkClick}
               className="flex items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-1.5 text-text-secondary hover:bg-surface-raised hover:text-text-primary transition-fast"
             >
               <Star className="size-3.5 text-tertiary-amber" />
@@ -138,9 +169,12 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
             <Link
               href="/archive"
+              onClick={handleLinkClick}
               className={cn(
                 'flex items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-1.5 font-medium transition-fast',
-                pathname === '/archive' ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
+                pathname === '/archive'
+                  ? 'bg-accent-subtle text-accent font-semibold'
+                  : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
               )}
             >
               <Trash2 className="size-3.5 text-text-muted" />
@@ -152,10 +186,13 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
         {/* Section: SUBJECTS */}
         <div className="space-y-1">
           <div className="flex items-center justify-between px-2">
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Subjects</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
+              Subjects
+            </p>
             <button
               onClick={() => setSubjectModalOpen(true)}
               className="text-[11px] text-accent hover:underline flex items-center gap-0.5"
+              aria-label="Add Subject"
             >
               <Plus className="size-3" />
             </button>
@@ -179,9 +216,12 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                 <Link
                   key={sub._id}
                   href={`/subjects/${sub._id}`}
+                  onClick={handleLinkClick}
                   className={cn(
                     'flex items-center gap-2 rounded-[var(--radius-md)] px-2.5 py-1.5 font-medium transition-fast',
-                    isActive ? 'bg-accent-subtle text-accent font-semibold' : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
+                    isActive
+                      ? 'bg-accent-subtle text-accent font-semibold'
+                      : 'text-text-secondary hover:bg-surface-raised hover:text-text-primary'
                   )}
                 >
                   <span className={cn('size-2 rounded-full shrink-0', colorDot)} />
@@ -199,32 +239,34 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
             </button>
           </div>
         </div>
-
-
       </div>
 
       {/* Footer User Profile */}
-      <div className="border-t border-border p-3 flex items-center justify-between">
+      <div className="border-t border-border p-3 flex items-center justify-between shrink-0 bg-surface">
         {user ? (
           <>
-            <div className="flex items-center gap-2 overflow-hidden">
-              <UserButton appearance={{ elements: { userButtonAvatarBox: "size-7" } }} />
-              <div className="truncate">
-                <p className="text-xs font-semibold text-text-primary truncate">{user.fullName || 'Student'}</p>
-                <p className="text-[10px] text-text-muted truncate">{user.primaryEmailAddress?.emailAddress || ''}</p>
+            <div className="flex items-center gap-2 overflow-hidden min-w-0">
+              <UserButton appearance={{ elements: { userButtonAvatarBox: 'size-7' } }} />
+              <div className="truncate min-w-0">
+                <p className="text-xs font-semibold text-text-primary truncate">
+                  {user.fullName || 'Student'}
+                </p>
+                <p className="text-[10px] text-text-muted truncate">
+                  {user.primaryEmailAddress?.emailAddress || ''}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <ThemeToggle />
             </div>
           </>
         ) : (
           <div className="flex w-full items-center justify-between gap-2">
-            <div className="flex items-center gap-2 overflow-hidden">
+            <div className="flex items-center gap-2 overflow-hidden min-w-0">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-800 text-xs">
                 G
               </div>
-              <div className="truncate">
+              <div className="truncate min-w-0">
                 <p className="text-xs font-semibold text-text-primary truncate">Guest Mode</p>
                 <div className="flex gap-2">
                   <SignInButton mode="modal">
@@ -244,6 +286,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
       <SubjectModal
         open={subjectModalOpen}
         onOpenChange={setSubjectModalOpen}
+        onSuccess={onNavigate}
       />
     </aside>
   )

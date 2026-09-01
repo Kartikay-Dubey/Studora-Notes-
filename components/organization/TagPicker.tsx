@@ -54,10 +54,11 @@ export function TagPicker({ noteId, tags, onTagsChange }: TagPickerProps) {
           <button
             type="button"
             onClick={() => handleRemoveTag(tag)}
-            className="text-text-muted hover:text-destructive transition-fast"
+            className="flex items-center justify-center size-3.5 text-text-muted hover:text-destructive transition-fast"
             title={`Remove tag #${tag}`}
+            aria-label={`Remove tag #${tag}`}
           >
-            <X className="size-3" />
+            <X className="size-2.5" />
           </button>
         </span>
       ))}

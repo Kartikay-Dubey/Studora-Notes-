@@ -114,7 +114,7 @@ export default function SubjectDetailPage({
       {/* 2-Column Workspace: Left Topics Tree + Right Notes List */}
       <div className="grid gap-6 md:grid-cols-4">
         {/* Left Column: Topics Navigation */}
-        <div className="md:col-span-1 border-r border-border pr-4">
+        <div className="md:col-span-1 border-b md:border-b-0 md:border-r border-border pb-4 md:pb-0 md:pr-4">
           <TopicTree
             subjectId={subjectId}
             topics={topics || []}

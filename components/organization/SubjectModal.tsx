@@ -85,9 +85,9 @@ export function SubjectModal({ open, onOpenChange, subjectToEdit, onSuccess }: S
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6 select-none rounded-[var(--radius-xl)] border-border bg-surface-raised shadow-xl">
+      <DialogContent className="max-w-md p-4 sm:p-6 select-none rounded-[var(--radius-xl)] border-border bg-surface-raised shadow-xl">
         <DialogHeader className="space-y-1">
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+          <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
             <Bookmark className="size-5 text-accent" />
             <span>{subjectToEdit ? 'Edit Subject' : 'New Academic Subject'}</span>
           </DialogTitle>
@@ -126,7 +126,7 @@ export function SubjectModal({ open, onOpenChange, subjectToEdit, onSuccess }: S
           {/* Color Palette Picker */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-text-secondary">Subject Color Badge</Label>
-            <div className="grid grid-cols-6 gap-2 pt-1">
+            <div className="grid grid-cols-6 gap-1.5 sm:gap-2 pt-1">
               {COLOR_PALETTE.map((c) => (
                 <button
                   key={c.id}

@@ -495,10 +495,18 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+  max-width: 100%;
+  margin: var(--paper-rule-spacing) 0;
+  -webkit-overflow-scrolling: touch;
+}
+
 .ProseMirror table {
   border-collapse: collapse;
   width: 100%;
-  margin: var(--paper-rule-spacing) 0;
+  min-width: 280px;
+  margin: 0;
 }
 
 .ProseMirror table td,

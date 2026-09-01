@@ -100,52 +100,78 @@ export function StickyNotesLayer({
   })
   const containerRef = useRef<HTMLDivElement | null>(null)
 
-  // Dragging mouse handler
-  const handleDragMouseDown = (e: React.MouseEvent, note: StickyNoteData) => {
+  // Dragging mouse/touch handler
+  const startDrag = (clientX: number, clientY: number, note: StickyNoteData) => {
     if (isReadingMode) return
-    e.stopPropagation()
     setActiveNoteId(note.id)
     setDraggingId(note.id)
     dragOffsetRef.current = {
-      x: e.clientX - note.x,
-      y: e.clientY - note.y,
+      x: clientX - note.x,
+      y: clientY - note.y,
     }
   }
 
-  // Resizing mouse handler
-  const handleResizeMouseDown = (e: React.MouseEvent, note: StickyNoteData) => {
-    if (isReadingMode) return
+  const handleDragMouseDown = (e: React.MouseEvent, note: StickyNoteData) => {
     e.stopPropagation()
+    startDrag(e.clientX, e.clientY, note)
+  }
+
+  const handleDragTouchStart = (e: React.TouchEvent, note: StickyNoteData) => {
+    if (e.touches.length === 1) {
+      e.stopPropagation()
+      startDrag(e.touches[0].clientX, e.touches[0].clientY, note)
+    }
+  }
+
+  // Resizing mouse/touch handler
+  const startResize = (clientX: number, clientY: number, note: StickyNoteData) => {
+    if (isReadingMode) return
     setActiveNoteId(note.id)
     setResizingId(note.id)
     resizeStartRef.current = {
       startW: note.width || 200,
       startH: note.height || 160,
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: clientX,
+      startY: clientY,
+    }
+  }
+
+  const handleResizeMouseDown = (e: React.MouseEvent, note: StickyNoteData) => {
+    e.stopPropagation()
+    startResize(e.clientX, e.clientY, note)
+  }
+
+  const handleResizeTouchStart = (e: React.TouchEvent, note: StickyNoteData) => {
+    if (e.touches.length === 1) {
+      e.stopPropagation()
+      startResize(e.touches[0].clientX, e.touches[0].clientY, note)
     }
   }
 
   useEffect(() => {
     if (!draggingId && !resizingId) return
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (draggingId) {
-        const container = containerRef.current
-        if (!container) return
-        const rect = container.getBoundingClientRect()
+    const updatePosition = (clientX: number, clientY: number) => {
+      const container = containerRef.current
+      if (!container) return
+      const rect = container.getBoundingClientRect()
 
-        const newX = Math.max(0, Math.min(rect.width - 120, e.clientX - dragOffsetRef.current.x))
-        const newY = Math.max(0, e.clientY - dragOffsetRef.current.y)
+      if (draggingId) {
+        const currentNote = notes.find((n) => n.id === draggingId)
+        const noteWidth = currentNote?.width || 200
+        const maxX = Math.max(0, rect.width - noteWidth)
+        const newX = Math.max(0, Math.min(maxX, clientX - dragOffsetRef.current.x))
+        const newY = Math.max(0, clientY - dragOffsetRef.current.y)
 
         onNotesChange(
           notes.map((n) => (n.id === draggingId ? { ...n, x: newX, y: newY } : n))
         )
       } else if (resizingId) {
-        const deltaX = e.clientX - resizeStartRef.current.startX
-        const deltaY = e.clientY - resizeStartRef.current.startY
+        const deltaX = clientX - resizeStartRef.current.startX
+        const deltaY = clientY - resizeStartRef.current.startY
 
-        const newW = Math.max(160, Math.min(600, resizeStartRef.current.startW + deltaX))
+        const maxAvailableW = Math.max(140, Math.min(600, rect.width - 20))
+        const newW = Math.max(140, Math.min(maxAvailableW, resizeStartRef.current.startW + deltaX))
         const newH = Math.max(100, Math.min(600, resizeStartRef.current.startH + deltaY))
 
         onNotesChange(
@@ -154,16 +180,31 @@ export function StickyNotesLayer({
       }
     }
 
-    const handleMouseUp = () => {
+    const handleMouseMove = (e: MouseEvent) => {
+      updatePosition(e.clientX, e.clientY)
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        updatePosition(e.touches[0].clientX, e.touches[0].clientY)
+      }
+    }
+
+    const handleEnd = () => {
       setDraggingId(null)
       setResizingId(null)
     }
 
     window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener('mouseup', handleEnd)
+    window.addEventListener('touchmove', handleTouchMove)
+    window.addEventListener('touchend', handleEnd)
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener('mouseup', handleEnd)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleEnd)
     }
   }, [draggingId, resizingId, notes, onNotesChange])
 
@@ -186,8 +227,8 @@ export function StickyNotesLayer({
     const dup: StickyNoteData = {
       ...note,
       id: 'sticky-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-      x: note.x + 24,
-      y: note.y + 24,
+      x: note.x + 20,
+      y: note.y + 20,
       updated_at: new Date().toISOString(),
     }
     onNotesChange([...notes, dup])
@@ -214,6 +255,7 @@ export function StickyNotesLayer({
             style={{
               transform: `translate(${note.x}px, ${note.y}px) rotate(${note.rotation || 0}deg)`,
               width: `${note.width || 200}px`,
+              maxWidth: 'calc(100% - 20px)',
               height: `${note.height || 160}px`,
               backgroundColor: colorStyle.bgStyle,
               borderColor: colorStyle.borderStyle,
@@ -223,16 +265,17 @@ export function StickyNotesLayer({
               isActive && !isReadingMode && 'ring-2 ring-primary/30 shadow-md z-30'
             )}
           >
-            {/* Subtle Drag Handle Header (No dark bar!) */}
+            {/* Drag Handle Header */}
             <div
               onMouseDown={(e) => handleDragMouseDown(e, note)}
-              className="h-6 w-full cursor-grab active:cursor-grabbing flex items-center justify-between px-2 select-none"
+              onTouchStart={(e) => handleDragTouchStart(e, note)}
+              className="h-6 w-full cursor-grab active:cursor-grabbing flex items-center justify-between px-2 select-none touch-none"
             >
-              {/* Subtle top tape/grip indicator */}
+              {/* Subtle top grip indicator */}
               <div className="w-8 h-1 rounded-full bg-black/10 mx-auto" />
 
               {!isReadingMode && (
-                <div className="absolute right-1 top-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-raised/80 backdrop-blur-xs px-1.5 py-0.5 rounded border border-border text-[10px]">
+                <div className="absolute right-1 top-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-raised/90 backdrop-blur-xs px-1.5 py-0.5 rounded border border-border text-[10px] shadow-xs">
                   {/* Color dots */}
                   <div className="flex items-center gap-0.5 mr-1">
                     {(['yellow', 'cream', 'beige', 'blue', 'mint', 'pink', 'lavender'] as const).map((c) => (
@@ -283,11 +326,12 @@ export function StickyNotesLayer({
               />
             </div>
 
-            {/* Resizable Corner Handle ↘ (Bottom-Right) */}
+            {/* Resizable Corner Handle */}
             {!isReadingMode && (
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, note)}
-                className="absolute bottom-0 right-0 size-4 cursor-se-resize flex items-center justify-center text-black/20 hover:text-black/60 transition-colors"
+                onTouchStart={(e) => handleResizeTouchStart(e, note)}
+                className="absolute bottom-0 right-0 size-5 cursor-se-resize flex items-center justify-center text-black/20 hover:text-black/60 transition-colors touch-none"
                 title="Resize Sticky Note"
               >
                 <svg className="size-3" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">

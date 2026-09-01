@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -52,7 +53,16 @@ import { Doc } from '@/convex/_generated/dataModel'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Star, Download, Loader2, BookOpen, Edit3, Lock, Save } from 'lucide-react'
+import {
+  Star,
+  Download,
+  Loader2,
+  BookOpen,
+  Edit3,
+  Lock,
+  Save,
+  ArrowLeft,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NoteEditorProps {
@@ -80,7 +90,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
   const [tableDialogOpen, setTableDialogOpen] = useState(false)
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  
+
   const saveNoteContentMutation = useMutation(api.notes.saveNoteContent)
   const updateStickyNotesMutation = useMutation(api.notes.updateStickyNotes)
   const toggleFavoriteMutation = useMutation(api.notes.toggleFavorite)
@@ -150,8 +160,6 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current)
       }
-      // Assuming unmount save logic is managed by page state or we could fire an immediate save here
-      // if we weren't restricted by async unmount hooks.
     }
   }, [])
 
@@ -215,7 +223,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'focus:outline-none',
+        class: 'focus:outline-none min-w-0 max-w-full',
       },
       handleDOMEvents: {
         blur: () => {
@@ -310,10 +318,10 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
       id: 'sticky-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       content: '',
       color: 'yellow',
-      x: 30 + (stickyNotes.length % 4) * 40,
-      y: 80 + (stickyNotes.length % 3) * 60,
-      width: 210,
-      height: 170,
+      x: 20 + (stickyNotes.length % 3) * 30,
+      y: 60 + (stickyNotes.length % 3) * 40,
+      width: 200,
+      height: 160,
       rotation: Math.floor(Math.random() * 4) - 2,
       updated_at: new Date().toISOString(),
     }
@@ -344,42 +352,59 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
   const readingTime = calculateReadingTime(words)
 
   return (
-    <div className="flex flex-1 flex-col h-full bg-background transition-all min-w-0 overflow-hidden">
+    <div className="flex flex-1 flex-col h-full bg-background transition-all min-w-0 w-full overflow-hidden">
       {/* ─── Top Header Bar: Normal Editor Toolbar vs Reading Mode Bar ─── */}
       {!isReadingMode ? (
-        <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-1 select-none shrink-0 min-w-0">
-          <EditorToolbar
-            editor={editor}
-            isReadingMode={isReadingMode}
-            onToggleReadingMode={() => setIsReadingMode(true)}
-            paperStyle={paperStyle}
-            onChangePaperStyle={setPaperStyle}
-            writingFont={editor ? (editor.getAttributes('textStyle').fontFamily || "'Patrick Hand', cursive, sans-serif") : "'Patrick Hand', cursive, sans-serif"}
-            onChangeWritingFont={handleWritingFontChange}
-            onAddStickyNote={handleAddStickyNote}
-            onInsertTableRequest={() => setTableDialogOpen(true)}
-          />
+        <div className="flex items-center justify-between border-b border-border bg-surface px-2 sm:px-4 py-1 select-none shrink-0 min-w-0 w-full overflow-hidden">
+          {/* Left: Back Button & Editor Toolbar */}
+          <div className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon-sm"
+              className="size-7 shrink-0 text-text-muted hover:text-text-primary"
+              title="Back to Notes"
+            >
+              <Link href="/notes">
+                <ArrowLeft className="size-4" />
+                <span className="sr-only">Back to Notes</span>
+              </Link>
+            </Button>
 
-          <div className="flex items-center gap-2 shrink-0 pl-2">
-            {!isReadingMode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleManualSave}
-                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
-                className="h-7 text-xs gap-1.5 font-medium shadow-3xs"
-                title="Save Changes"
-              >
-                <Save className="size-3 text-text-secondary" />
-                <span>Save</span>
-              </Button>
-            )}
+            <div className="min-w-0 flex-1 overflow-x-auto scrollbar-none">
+              <EditorToolbar
+                editor={editor}
+                isReadingMode={isReadingMode}
+                onToggleReadingMode={() => setIsReadingMode(true)}
+                paperStyle={paperStyle}
+                onChangePaperStyle={setPaperStyle}
+                writingFont={editor ? (editor.getAttributes('textStyle').fontFamily || "'Patrick Hand', cursive, sans-serif") : "'Patrick Hand', cursive, sans-serif"}
+                onChangeWritingFont={handleWritingFontChange}
+                onAddStickyNote={handleAddStickyNote}
+                onInsertTableRequest={() => setTableDialogOpen(true)}
+              />
+            </div>
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0 pl-1 sm:pl-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleManualSave}
+              disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+              className="h-7 text-xs gap-1 font-medium px-2 shadow-3xs"
+              title="Save Changes"
+            >
+              <Save className="size-3 text-text-secondary" />
+              <span className="hidden sm:inline">Save</span>
+            </Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className="h-7 text-xs gap-1.5 font-medium shadow-3xs"
+              className="h-7 text-xs gap-1 font-medium px-2 shadow-3xs"
               title="Export Note as PDF"
             >
               {isExportingPdf ? (
@@ -387,26 +412,39 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
               ) : (
                 <Download className="size-3 text-accent" />
               )}
-              <span>Export PDF</span>
+              <span className="hidden sm:inline">Export PDF</span>
             </Button>
           </div>
         </div>
       ) : (
-        /* Reading Mode Top Bar — Minimal, distraction-free document reader */
-        <div className="flex items-center justify-between border-b border-border bg-surface-raised/80 backdrop-blur-xs px-6 py-2 select-none shrink-0 min-w-0">
-          <div className="flex items-center gap-2.5 text-xs text-text-secondary">
-            <span className="flex items-center gap-1.5 font-semibold text-accent bg-accent-subtle px-2.5 py-0.5 rounded-full text-[11px]">
+        /* Reading Mode Top Bar */
+        <div className="flex items-center justify-between border-b border-border bg-surface-raised/80 backdrop-blur-xs px-3 sm:px-6 py-2 select-none shrink-0 min-w-0 w-full">
+          <div className="flex items-center gap-2 text-xs text-text-secondary min-w-0">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon-sm"
+              className="size-7 shrink-0 text-text-muted hover:text-text-primary"
+              title="Back to Notes"
+            >
+              <Link href="/notes">
+                <ArrowLeft className="size-4" />
+                <span className="sr-only">Back to Notes</span>
+              </Link>
+            </Button>
+
+            <span className="flex items-center gap-1.5 font-semibold text-accent bg-accent-subtle px-2.5 py-0.5 rounded-full text-[11px] shrink-0">
               <BookOpen className="size-3.5" />
               <span>Reading Mode</span>
             </span>
-            <span className="hidden sm:inline text-text-muted text-[11px] flex items-center gap-1">
-              <Lock className="size-3 text-text-muted" />
+            <span className="hidden md:inline text-text-muted text-[11px] items-center gap-1 truncate">
+              <Lock className="size-3 text-text-muted inline mr-1" />
               <span>Read-Only Document</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-3 text-xs text-text-muted">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="hidden lg:flex items-center gap-3 text-xs text-text-muted">
               <span>{words} words</span>
               <span>•</span>
               <span>{readingTime} min read</span>
@@ -417,7 +455,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
               size="sm"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className="h-7 text-xs gap-1.5 shadow-3xs"
+              className="h-7 text-xs gap-1.5 px-2 shadow-3xs"
               title="Export Note as PDF"
             >
               {isExportingPdf ? (
@@ -425,14 +463,14 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
               ) : (
                 <Download className="size-3 text-accent" />
               )}
-              <span>Export PDF</span>
+              <span className="hidden sm:inline">Export PDF</span>
             </Button>
 
             <Button
               variant="primary"
               size="sm"
               onClick={() => setIsReadingMode(false)}
-              className="h-7 text-xs gap-1.5 font-semibold shadow-xs"
+              className="h-7 text-xs gap-1.5 px-2 font-semibold shadow-xs"
               title="Return to Editing Mode"
             >
               <Edit3 className="size-3.5" />
@@ -447,7 +485,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
         <div
           id="studora-note-sheet"
           className={cn(
-            'notebook-page min-h-full w-full px-8 md:px-16 py-8 relative transition-all',
+            'notebook-page min-h-full w-full px-3 sm:px-8 md:px-16 py-4 sm:py-8 relative transition-all min-w-0',
             `paper-${paperStyle}`
           )}
           style={{ '--writing-font': writingFont, fontFamily: writingFont } as React.CSSProperties}
@@ -461,14 +499,14 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
           />
 
           {/* Note Title & Header Info */}
-          <div className="relative z-10 mb-8 space-y-2 select-none border-b-2 border-border pb-4">
-            <div className="flex items-center justify-between gap-4">
+          <div className="relative z-10 mb-6 sm:mb-8 space-y-2 select-none border-b-2 border-border pb-3 sm:pb-4 min-w-0">
+            <div className="flex items-center justify-between gap-2 sm:gap-4 min-w-0">
               <Input
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Note Title..."
                 className={cn(
-                  'border-0 bg-transparent p-0 text-3xl md:text-4xl font-bold tracking-tight focus-visible:outline-none focus-visible:ring-0 shadow-none h-12 leading-[48px]',
+                  'border-0 bg-transparent p-0 text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight focus-visible:outline-none focus-visible:ring-0 shadow-none h-auto py-1 leading-tight min-w-0 flex-1',
                   isReadingMode && 'cursor-default selection:bg-transparent'
                 )}
                 style={{ color: 'var(--heading-title-color)', fontFamily: writingFont }}
@@ -484,7 +522,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
                       id: initialNote._id,
                       is_favorite: nextFav
                     })
-                  } catch (e) {
+                  } catch {
                     setIsFavorite(!nextFav)
                   }
                 }}
@@ -499,8 +537,8 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
             </div>
 
             {/* Note Stats & Tags */}
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-text-muted pt-1">
-              <div className="flex items-center gap-3 font-sans text-[11px]">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted pt-1">
+              <div className="flex items-center gap-2 sm:gap-3 font-sans text-[11px]">
                 <span>{words} words</span>
                 <span>•</span>
                 <span>{readingTime} min read</span>
@@ -515,7 +553,7 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
                   />
                 ) : (
                   tags.length > 0 && (
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {tags.map((tag) => (
                         <span
                           key={tag}
@@ -532,8 +570,8 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
           </div>
 
           {/* Editor Canvas with Selected Handwriting / Writing Font */}
-          <div className="relative z-10" style={{ fontFamily: writingFont }}>
-            <EditorContent editor={editor} style={{ fontFamily: writingFont }} />
+          <div className="relative z-10 min-w-0 max-w-full" style={{ fontFamily: writingFont }}>
+            <EditorContent editor={editor} style={{ fontFamily: writingFont }} className="min-w-0 max-w-full" />
             <BubbleToolbar editor={editor} />
             <SlashMenu
               editor={editor}
@@ -551,32 +589,32 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
       </div>
 
       {/* ─── SINGLE BOTTOM SAVE STATUS BAR ─────────────────────────── */}
-      <div className="flex items-center justify-between border-t border-border bg-surface px-6 py-1 text-[11px] text-text-muted select-none font-sans shrink-0">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between border-t border-border bg-surface px-3 sm:px-6 py-1 text-[10px] sm:text-[11px] text-text-muted select-none font-sans shrink-0 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-4 truncate">
           <span>{words} words</span>
-          <span>{characters} characters</span>
+          <span className="hidden xs:inline">{characters} chars</span>
           <span>{readingTime} min read</span>
         </div>
-        <div className="flex items-center gap-1.5 font-medium">
+        <div className="flex items-center gap-1.5 font-medium shrink-0">
           {saveStatus === 'saving' ? (
             <>
               <Loader2 className="size-3 animate-spin text-accent" />
-              <span className="text-accent">Saving changes...</span>
+              <span className="text-accent">Saving...</span>
             </>
           ) : saveStatus === 'unsaved' ? (
             <>
               <span className="size-1.5 rounded-full bg-amber-500" />
-              <span className="text-amber-600">Unsaved changes</span>
+              <span className="text-amber-600">Unsaved</span>
             </>
           ) : (
             <>
               <span className="size-1.5 rounded-full bg-emerald-500" />
               <span className="text-emerald-700 dark:text-emerald-400">
-                {isReadingMode 
-                  ? 'Read-Only Mode' 
-                  : lastSavedTime 
-                    ? `Last saved at ${new Date(lastSavedTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` 
-                    : 'Saved to cloud'}
+                {isReadingMode
+                  ? 'Read-Only'
+                  : lastSavedTime
+                    ? `Saved ${new Date(lastSavedTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    : 'Saved'}
               </span>
             </>
           )}

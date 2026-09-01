@@ -96,59 +96,59 @@ export default function DashboardPage() {
       {/* Quick Action Bar */}
       <div className="space-y-3">
         <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Quick Actions</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           <button
             onClick={handleCreateNote}
             disabled={!isAuthenticated || isCreating}
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center gap-2.5 sm:gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-2.5 sm:p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
           >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-accent-subtle text-accent">
-              {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+            <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-accent-subtle text-accent">
+              {isCreating ? <Loader2 className="size-3.5 sm:size-4 animate-spin" /> : <Plus className="size-3.5 sm:size-4" />}
             </div>
-            <div>
-              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast">{isCreating ? 'Creating...' : 'New Note'}</p>
-              <p className="text-[10px] text-text-muted">Blank document</p>
+            <div className="truncate min-w-0">
+              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast truncate">{isCreating ? 'Creating...' : 'New Note'}</p>
+              <p className="text-[10px] text-text-muted truncate">Blank document</p>
             </div>
           </button>
 
           <Link
             href="/notes"
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group"
+            className="flex items-center gap-2.5 sm:gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-2.5 sm:p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group min-w-0"
           >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-success-subtle text-success">
-              <FileText className="size-4" />
+            <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-success-subtle text-success">
+              <FileText className="size-3.5 sm:size-4" />
             </div>
-            <div>
-              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast">Note Library</p>
-              <p className="text-[10px] text-text-muted">Browse all notes</p>
+            <div className="truncate min-w-0">
+              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast truncate">Note Library</p>
+              <p className="text-[10px] text-text-muted truncate">Browse notes</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/subjects"
+            className="flex items-center gap-2.5 sm:gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-2.5 sm:p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group min-w-0"
+          >
+            <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-warning-subtle text-warning">
+              <Bookmark className="size-3.5 sm:size-4" />
+            </div>
+            <div className="truncate min-w-0">
+              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast truncate">Subjects</p>
+              <p className="text-[10px] text-text-muted truncate">Academic shelf</p>
             </div>
           </Link>
 
           <Link
             href="/notes"
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group"
+            className="flex items-center gap-2.5 sm:gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-2.5 sm:p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group min-w-0"
           >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-warning-subtle text-warning">
-              <Bookmark className="size-4" />
+            <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-surface-raised text-text-secondary">
+              <CheckSquare className="size-3.5 sm:size-4" />
             </div>
-            <div>
-              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast">Subjects</p>
-              <p className="text-[10px] text-text-muted">Academic modules</p>
+            <div className="truncate min-w-0">
+              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast truncate">Study Revision</p>
+              <p className="text-[10px] text-text-muted truncate">Review topics</p>
             </div>
           </Link>
-
-          <button
-            onClick={handleCreateNote}
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-3 text-left transition-fast hover:border-border-strong hover:shadow-xs group"
-          >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-surface-raised text-text-secondary">
-              <CheckSquare className="size-4" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-text-primary group-hover:text-accent transition-fast">Study Revision</p>
-              <p className="text-[10px] text-text-muted">Review topics</p>
-            </div>
-          </button>
         </div>
       </div>
 

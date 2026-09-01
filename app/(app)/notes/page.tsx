@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useQuery, useMutation } from 'convex/react'
+import { useQuery, useMutation, useConvexAuth } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id, Doc } from '@/convex/_generated/dataModel'
 import { MoveNoteDialog } from '@/components/organization/MoveNoteDialog'
@@ -51,17 +51,27 @@ export default function NotesPage() {
     return true
   }) : undefined
 
+  const { isAuthenticated } = useConvexAuth()
+  const [isCreating, setIsCreating] = useState(false)
   const createNoteMutation = useMutation(api.notes.createNote)
   const archiveNoteMutation = useMutation(api.notes.archive)
   const toggleFavoriteMutation = useMutation(api.notes.toggleFavorite)
 
   const handleCreateNote = async () => {
-    const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
-    const noteId = await createNoteMutation({
-      title: 'Untitled Note',
-      localId: localId
-    })
-    router.push(`/notes/${noteId}`)
+    if (!isAuthenticated || isCreating) return
+    setIsCreating(true)
+    try {
+      const localId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+      const noteId = await createNoteMutation({
+        title: 'Untitled Note',
+        localId: localId
+      })
+      router.push(`/notes/${noteId}`)
+    } catch (err) {
+      console.error('Failed to create note:', err)
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const handleDeleteNote = async (e: React.MouseEvent, id: string) => {
