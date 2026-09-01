@@ -7,6 +7,7 @@ export default defineSchema({
     email: v.string(),
     image: v.optional(v.string()),
     tokenIdentifier: v.string(), // Identifier from Auth provider (e.g. Supabase/Clerk)
+    onboarding_note_created: v.optional(v.boolean()),
   }).index("by_token", ["tokenIdentifier"]),
 
   subjects: defineTable({

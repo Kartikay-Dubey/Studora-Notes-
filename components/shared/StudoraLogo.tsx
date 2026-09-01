@@ -58,12 +58,12 @@ export function StudoraMark({
         strokeLinejoin="round"
         className={cn(
           theme === 'dark'
-            ? 'stroke-[#E2E8F0]'
+            ? 'stroke-[#F2F5F8]'
             : theme === 'light'
             ? 'stroke-[#0B192C]'
             : theme === 'mono'
             ? 'stroke-current'
-            : 'stroke-[#0B192C] dark:stroke-[#E2E8F0]'
+            : 'studora-logo-stroke'
         )}
       />
 
@@ -77,12 +77,12 @@ export function StudoraMark({
         strokeLinecap="round"
         className={cn(
           theme === 'dark'
-            ? 'stroke-[#E2E8F0]'
+            ? 'stroke-[#F2F5F8]'
             : theme === 'light'
             ? 'stroke-[#0B192C]'
             : theme === 'mono'
             ? 'stroke-current'
-            : 'stroke-[#0B192C] dark:stroke-[#E2E8F0]'
+            : 'studora-logo-stroke'
         )}
       />
 
@@ -110,10 +110,10 @@ export function StudoraMark({
             theme === 'mono'
               ? 'fill-current stroke-current'
               : theme === 'dark'
-              ? 'fill-[#60A5FA] stroke-[#E2E8F0]'
+              ? 'fill-[#60A5FA] stroke-[#F2F5F8]'
               : theme === 'light'
               ? 'fill-[#60A5FA] stroke-[#0B192C]'
-              : 'fill-[#60A5FA] stroke-[#0B192C] dark:stroke-[#E2E8F0]'
+              : 'fill-[#60A5FA] studora-logo-stroke'
           )}
         />
         {/* Body */}
@@ -128,10 +128,10 @@ export function StudoraMark({
             theme === 'mono'
               ? 'fill-current stroke-current'
               : theme === 'dark'
-              ? 'fill-[#2563EB] stroke-[#E2E8F0]'
+              ? 'fill-[#2563EB] stroke-[#F2F5F8]'
               : theme === 'light'
               ? 'fill-[#2563EB] stroke-[#0B192C]'
-              : 'fill-[#2563EB] stroke-[#0B192C] dark:stroke-[#E2E8F0]'
+              : 'fill-[#2563EB] studora-logo-stroke'
           )}
         />
         {/* Clip / Clicker */}
@@ -143,10 +143,10 @@ export function StudoraMark({
             theme === 'mono'
               ? 'fill-current stroke-current'
               : theme === 'dark'
-              ? 'fill-[#2563EB] stroke-[#E2E8F0]'
+              ? 'fill-[#2563EB] stroke-[#F2F5F8]'
               : theme === 'light'
               ? 'fill-[#2563EB] stroke-[#0B192C]'
-              : 'fill-[#2563EB] stroke-[#0B192C] dark:stroke-[#E2E8F0]'
+              : 'fill-[#2563EB] studora-logo-stroke'
           )}
         />
       </g>
@@ -201,21 +201,30 @@ export function StudoraLogo({
   const isMonochrome = variant === 'monochrome'
   const effectiveTheme: LogoTheme = isMonochrome ? 'mono' : theme
 
-  const wordmarkColor =
+  const stuClass =
     theme === 'dark'
-      ? 'text-white'
+      ? 'text-[#F2F5F8]'
+      : theme === 'light'
+      ? 'text-[#D97706]'
+      : theme === 'mono'
+      ? 'text-current'
+      : 'studora-logo-stu'
+
+  const doraClass =
+    theme === 'dark'
+      ? 'text-[#F2F5F8]'
       : theme === 'light'
       ? 'text-[#0B192C]'
       : theme === 'mono'
       ? 'text-current'
-      : 'text-[#0B192C] dark:text-white'
+      : 'studora-logo-dora'
 
   const taglineColor =
     theme === 'dark'
-      ? 'text-slate-400'
+      ? 'text-[#9DA3AF]'
       : theme === 'light'
       ? 'text-slate-500'
-      : 'text-slate-500 dark:text-slate-400'
+      : 'text-slate-500 dark:text-[#9DA3AF]'
 
   /* ── Icon only */
   if (variant === 'icon') {
@@ -234,14 +243,14 @@ export function StudoraLogo({
     return (
       <span
         className={cn(
-          'font-bold tracking-tight select-none font-sans',
+          'font-bold tracking-tight select-none font-sans inline-flex',
           wordmarkSizeMap[size],
-          wordmarkColor,
           className
         )}
         aria-label="Studora"
       >
-        Studora
+        <span className={stuClass}>Stu</span>
+        <span className={doraClass}>dora</span>
       </span>
     )
   }
@@ -260,12 +269,13 @@ export function StudoraLogo({
       <div className="flex flex-col justify-center leading-none">
         <span
           className={cn(
-            'font-bold tracking-tight font-sans leading-none',
-            wordmarkSizeMap[size],
-            wordmarkColor
+            'font-bold tracking-tight font-sans leading-none inline-flex',
+            wordmarkSizeMap[size]
           )}
+          aria-label="Studora"
         >
-          Studora
+          <span className={stuClass}>Stu</span>
+          <span className={doraClass}>dora</span>
         </span>
         {showTagline && (
           <div className="flex items-center gap-1.5 mt-1">

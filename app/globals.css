@@ -103,60 +103,61 @@
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --card: #1e293b;
-  --card-foreground: #f8fafc;
-  --popover: #1e293b;
-  --popover-foreground: #f8fafc;
-  --primary: #4ade80;
-  --primary-foreground: #0f172a;
-  --secondary: #fde047;
-  --secondary-foreground: #0f172a;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #60a5fa;
-  --accent-foreground: #0f172a;
-  --destructive: #f87171;
-  --destructive-foreground: #0f172a;
-  --border: #334155;
-  --input: #334155;
-  --ring: #4ade80;
-  --chart-1: #4ade80;
-  --chart-2: #fde047;
-  --chart-3: #60a5fa;
-  --chart-4: #4ade80;
-  --chart-5: #c084fc;
-  --sidebar: #0f172a;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #4ade80;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #60a5fa;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #334155;
-  --sidebar-ring: #4ade80;
+  --background: #0A0A0C;
+  --foreground: #F2F5F8;
+  --card: #1E1F25;
+  --card-foreground: #F2F5F8;
+  --popover: #1E1F25;
+  --popover-foreground: #F2F5F8;
+  --primary: #FFB000;
+  --primary-foreground: #0A0A0C;
+  --secondary: #3B3F4A;
+  --secondary-foreground: #F2F5F8;
+  --muted: #1E1F25;
+  --muted-foreground: #9DA3AF;
+  --accent: #FFB000;
+  --accent-foreground: #0A0A0C;
+  --accent-hover: #E59E00;
+  --accent-subtle: rgba(255, 176, 0, 0.15);
+  --destructive: #F87171;
+  --destructive-foreground: #0A0A0C;
+  --destructive-subtle: rgba(248, 113, 113, 0.15);
+  --border: #3B3F4A;
+  --input: #3B3F4A;
+  --ring: #FFB000;
+  --chart-1: #FFB000;
+  --chart-2: #F2F5F8;
+  --chart-3: #3B3F4A;
+  --chart-4: #1E1F25;
+  --chart-5: #E59E00;
+  --sidebar: #0A0A0C;
+  --sidebar-foreground: #F2F5F8;
+  --sidebar-primary: #FFB000;
+  --sidebar-primary-foreground: #0A0A0C;
+  --sidebar-accent: #FFB000;
+  --sidebar-accent-foreground: #0A0A0C;
+  --sidebar-border: #3B3F4A;
+  --sidebar-ring: #FFB000;
 
-  /* Component Alias Tokens in Dark */
-  --surface: #1e293b;
-  --surface-raised: #334155;
-  --border-strong: #475569;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-inverse: #0f172a;
-  --accent-hover: #3b82f6;
-  --accent-subtle: #1e3a8a;
+  /* Component Alias Tokens in Dark (Charcoal Citrus Pop) */
+  --surface: #1E1F25;
+  --surface-raised: #3B3F4A;
+  --border-strong: #525866;
+  --text-primary: #F2F5F8;
+  --text-secondary: #D1D5DB;
+  --text-muted: #9DA3AF;
+  --text-inverse: #0A0A0C;
 
-  --shadow-color: hsl(0 0% 100%);
-  --shadow-3xs: 2px 2px 0px 0px hsl(0 0% 100% / 0.80);
-  --shadow-2xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.50);
-  --shadow-xs: 4px 4px 0px 0px hsl(0 0% 100% / 0.50);
-  --shadow-sm: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 1px 2px -1px hsl(0 0% 100% / 1.00);
-  --shadow: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 1px 2px -1px hsl(0 0% 100% / 1.00);
-  --shadow-md: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 2px 4px -1px hsl(0 0% 100% / 1.00);
-  --shadow-lg: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 4px 6px -1px hsl(0 0% 100% / 1.00);
-  --shadow-xl: 4px 4px 0px 0px hsl(0 0% 100% / 1.00), 4px 8px 10px -1px hsl(0 0% 100% / 1.00);
-  --shadow-2xl: 4px 4px 0px 0px hsl(0 0% 100% / 2.50);
+  --shadow-color: hsl(0 0% 0%);
+  --shadow-3xs: 2px 2px 0px 0px rgba(0, 0, 0, 0.60);
+  --shadow-2xs: 4px 4px 0px 0px rgba(0, 0, 0, 0.40);
+  --shadow-xs: 4px 4px 0px 0px rgba(0, 0, 0, 0.40);
+  --shadow-sm: 4px 4px 0px 0px rgba(0, 0, 0, 0.60), 4px 1px 2px -1px rgba(0, 0, 0, 0.60);
+  --shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.60), 4px 1px 2px -1px rgba(0, 0, 0, 0.60);
+  --shadow-md: 4px 4px 0px 0px rgba(0, 0, 0, 0.60), 4px 2px 4px -1px rgba(0, 0, 0, 0.60);
+  --shadow-lg: 4px 4px 0px 0px rgba(0, 0, 0, 0.60), 4px 4px 6px -1px rgba(0, 0, 0, 0.60);
+  --shadow-xl: 4px 4px 0px 0px rgba(0, 0, 0, 0.60), 4px 8px 10px -1px rgba(0, 0, 0, 0.60);
+  --shadow-2xl: 4px 4px 0px 0px rgba(0, 0, 0, 0.80);
 }
 
 @theme inline {
@@ -243,6 +244,28 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
+/* ─── Studora Brand Logo Rules ───────────────────────────────────────────── */
+.studora-logo-stu {
+  color: #D97706 !important;
+}
+.dark .studora-logo-stu {
+  color: #FFB000 !important;
+}
+
+.studora-logo-dora {
+  color: #0B192C !important;
+}
+.dark .studora-logo-dora {
+  color: #F2F5F8 !important;
+}
+
+.studora-logo-stroke {
+  stroke: #0B192C !important;
+}
+.dark .studora-logo-stroke {
+  stroke: #F2F5F8 !important;
+}
+
 /* ─── Base Styles ────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -289,11 +312,12 @@ body {
 }
 
 .dark {
-  --paper-rule-color: rgba(255, 255, 255, 0.08);
-  --heading-title-color: #4ade80;   /* Fresh academic green in dark */
-  --heading-h1-color: #60a5fa;      /* Vibrant cobalt blue in dark */
-  --heading-h2-color: #fb923c;      /* Soft warm amber in dark */
-  --heading-h3-color: #2dd4bf;      /* Fresh teal in dark */
+  --paper-rule-color: rgba(242, 245, 248, 0.06);
+  --paper-rule-color-dark: rgba(242, 245, 248, 0.06);
+  --heading-title-color: #FFB000;   /* Citrus pop in dark */
+  --heading-h1-color: #F2F5F8;      /* Clean light neutral in dark */
+  --heading-h2-color: #FFB000;      /* Citrus pop in dark */
+  --heading-h3-color: #D1D5DB;      /* Slate light neutral in dark */
 }
 
 .notebook-page {

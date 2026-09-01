@@ -13,6 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn, getToken } = useAuth()
   const { isAuthenticated } = useConvexAuth()
   const storeUser = useMutation(api.users.storeUser)
+  const createOnboardingNote = useMutation(api.notes.createOnboardingNote)
   const router = useRouter()
   const storedRef = useRef(false)
 
@@ -28,15 +29,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [isLoaded, isSignedIn, getToken])
 
   // Sync Clerk user into Convex DB once JWT is verified — run only once per session
+  // Also fires createOnboardingNote for brand-new users (idempotent: no-ops if already created)
   useEffect(() => {
     if (isAuthenticated && !storedRef.current) {
       storedRef.current = true
-      storeUser().catch((err) => {
-        console.warn('[Studora] storeUser failed:', err)
-        storedRef.current = false // allow retry
-      })
+      storeUser()
+        .then(() => {
+          // Fire-and-forget: server is idempotent, won't double-create
+          createOnboardingNote().catch(() => {/* already created or error — silently ignore */})
+        })
+        .catch((err) => {
+          console.warn('[Studora] storeUser failed:', err)
+          storedRef.current = false // allow retry
+        })
     }
-  }, [isAuthenticated, storeUser])
+  }, [isAuthenticated, storeUser, createOnboardingNote])
 
   // Redirect unauthenticated users
   useEffect(() => {
@@ -56,8 +63,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // Signed in — render immediately.
-  // Queries return [] gracefully until Convex auth + storeUser complete.
-  // Mutations are protected by isAuthenticated checks inside each handler.
   return <AppShell>{children}</AppShell>
 }
 
