@@ -24,6 +24,347 @@ const getUserId = async (ctx: any) => {
   return user._id;
 };
 
+// Helper: Generates full 9-section feature guide TipTap JSON document
+function buildGuideNoteContent(firstName: string = "there") {
+  return {
+    type: "doc",
+    content: [
+      // ── H1 Title ──
+      {
+        type: "heading",
+        attrs: { level: 1 },
+        content: [{ type: "text", text: `👋 Welcome to Studora — Complete Beginner's Guide` }]
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Welcome, " },
+          { type: "text", marks: [{ type: "bold" }], text: firstName },
+          { type: "text", text: "! This interactive guide explains " },
+          { type: "text", marks: [{ type: "bold" }], text: "how every Studora feature works" },
+          { type: "text", text: " to help you turn scattered notes into a structured study system. Feel free to edit, practice, or check off items below!" }
+        ]
+      },
+
+      // ── CALLOUT: Real-time Cloud Sync ──
+      {
+        type: "studentBlock",
+        attrs: { type: "exampoint", label: "EXAM POINT" },
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", marks: [{ type: "bold" }], text: "⚡ REAL-TIME CLOUD SYNC & AUTO-SAVE: " },
+              { type: "text", text: "Studora saves your work automatically as you type. Everything is synced to the cloud instantly — no manual save button needed!" }
+            ]
+          }
+        ]
+      },
+
+      // ── H2: 1. Text Formatting & Custom Writing Fonts ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "1. ✍️ Text Formatting & Custom Writing Fonts" }]
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Use the top toolbar to style text with " },
+          { type: "text", marks: [{ type: "bold" }], text: "Bold (Ctrl+B)" },
+          { type: "text", text: ", " },
+          { type: "text", marks: [{ type: "italic" }], text: "Italic (Ctrl+I)" },
+          { type: "text", text: ", " },
+          { type: "text", marks: [{ type: "underline" }], text: "Underline (Ctrl+U)" },
+          { type: "text", text: ", and " },
+          { type: "text", marks: [{ type: "strike" }], text: "Strikethrough" },
+          { type: "text", text: ". Change font sizes (14px–28px) or select your preferred handwriting font (" },
+          { type: "text", marks: [{ type: "italic" }], text: "Patrick Hand, Kalam, Inter, Lora, JetBrains Mono" },
+          { type: "text", text: ") from the font dropdown." }
+        ]
+      },
+
+      // ── H2: 2. Academic Callout Blocks ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "2. 📌 Academic Callout Blocks" }]
+      },
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Click 'Academic Callout' in the toolbar to insert color-coded blocks designed for academic study:" }]
+      },
+
+      // CALLOUT: IMPORTANT CONCEPT
+      {
+        type: "studentBlock",
+        attrs: { type: "important", label: "IMPORTANT CONCEPT" },
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", marks: [{ type: "bold" }], text: "Core Concept: " },
+              { type: "text", text: "Academic callouts highlight critical info in your notes so you can quickly scan them during exam revision." }
+            ]
+          }
+        ]
+      },
+
+      // CALLOUT: DEFINITION
+      {
+        type: "studentBlock",
+        attrs: { type: "definition", label: "DEFINITION" },
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", marks: [{ type: "bold" }], text: "Active Recall: " },
+              { type: "text", text: "A study technique where you stimulate your memory for a piece of information rather than passively re-reading slides." }
+            ]
+          }
+        ]
+      },
+
+      // CALLOUT: KEY FORMULA
+      {
+        type: "studentBlock",
+        attrs: { type: "formula", label: "KEY FORMULA" },
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", marks: [{ type: "bold" }], text: "Euler's Identity: " },
+              { type: "text", text: "e^(iπ) + 1 = 0   |   Shannon Channel Capacity: C = B × log₂(1 + S/N)" }
+            ]
+          }
+        ]
+      },
+
+      // CALLOUT: COMMON MISTAKE
+      {
+        type: "studentBlock",
+        attrs: { type: "mistake", label: "COMMON MISTAKE" },
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", marks: [{ type: "bold" }], text: "Don't confuse 2NF and 3NF: " },
+              { type: "text", text: "2NF eliminates partial functional dependencies; 3NF eliminates transitive functional dependencies." }
+            ]
+          }
+        ]
+      },
+
+      // CALLOUT: REMEMBER THIS
+      {
+        type: "studentBlock",
+        attrs: { type: "remember", label: "REMEMBER THIS" },
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", marks: [{ type: "bold" }], text: "Pro Tip: " },
+              { type: "text", text: "Type '/' anywhere on a blank line to open the quick slash menu and insert blocks without touching the mouse!" }
+            ]
+          }
+        ]
+      },
+
+      // ── H2: 3. Lists & Interactive Checklists ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "3. 📋 Lists & Interactive Task Checklists" }]
+      },
+      {
+        type: "bulletList",
+        content: [
+          { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Bullet lists for quick summaries and brainstorming" }] }] },
+          { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Press Tab to indent and create nested sub-points" }] }] }
+        ]
+      },
+      {
+        type: "orderedList",
+        content: [
+          { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Step 1: Read lecture slides & textbook chapters" }] }] },
+          { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Step 2: Write structured summary notes in Studora" }] }] },
+          { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Step 3: Test yourself using the interactive checklists below" }] }] }
+        ]
+      },
+      {
+        type: "taskList",
+        content: [
+          { type: "taskItem", attrs: { checked: true }, content: [{ type: "paragraph", content: [{ type: "text", text: "Sign up & open the Studora Starter Guide ✓" }] }] },
+          { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Create a new Academic Subject on the sidebar (e.g. Computer Science, Physics)" }] }] },
+          { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Create your first custom study note" }] }] },
+          { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Add custom tags (#midterm, #formula) to organize your notes" }] }] },
+          { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Press Ctrl+K / ⌘K to try the global Command Palette" }] }] }
+        ]
+      },
+
+      // ── H2: 4. Code Blocks ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "4. 💻 Code Blocks with Syntax Highlighting" }]
+      },
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Click the code icon (<>) or type ``` to format code for CS & engineering courses:" }]
+      },
+      {
+        type: "codeBlock",
+        attrs: { language: "python" },
+        content: [{ type: "text", text: "# Dijkstra's Shortest Path Algorithm - O((V + E) log V)\nimport heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float('inf') for node in graph}\n    distances[start] = 0\n    pq = [(0, start)]\n\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > distances[u]: continue\n        for v, w in graph[u]:\n            if distances[u] + w < distances[v]:\n                distances[v] = distances[u] + w\n                heapq.heappush(pq, (distances[v], v))\n    return distances" }]
+      },
+
+      // ── H2: 5. Blockquotes ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "5. 💬 Blockquotes & Citations" }]
+      },
+      {
+        type: "blockquote",
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "\"An investment in knowledge pays the best interest.\" — Benjamin Franklin" }]
+          }
+        ]
+      },
+
+      // ── H2: 6. Paper Styles ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "6. 📄 Custom Notebook Paper Styles" }]
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Click the " },
+          { type: "text", marks: [{ type: "bold" }], text: "Paper Style button" },
+          { type: "text", text: " in the top-right toolbar to switch canvas background: " },
+          { type: "text", marks: [{ type: "bold" }], text: "Ruled" },
+          { type: "text", text: " (lined notebook), " },
+          { type: "text", marks: [{ type: "bold" }], text: "Grid" },
+          { type: "text", text: " (graph paper for math & engineering), " },
+          { type: "text", marks: [{ type: "bold" }], text: "Dotted" },
+          { type: "text", text: " (bullet journal), or " },
+          { type: "text", marks: [{ type: "bold" }], text: "Blank" },
+          { type: "text", text: "." }
+        ]
+      },
+
+      // ── H2: 7. Floating Margin Sticky Notes ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "7. 🗒️ Margin Sticky Notes" }]
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Click " },
+          { type: "text", marks: [{ type: "bold" }], text: "+ Sticky Note" },
+          { type: "text", text: " to drop draggable, resizable sticky notes onto your document canvas. Perfect for side-margin annotations, quick formulas, and study reminders!" }
+        ]
+      },
+
+      // ── H2: 8. Organization Features ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "8. 🗂️ Subject Shelves, Topics & Tag Organization" }]
+      },
+      {
+        type: "bulletList",
+        content: [
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", marks: [{ type: "bold" }], text: "Academic Subjects Shelf: " },
+                  { type: "text", text: "Organize notes into color-coded subject folders on the left sidebar (e.g. Computer Science, Physics, Economics)." }
+                ]
+              }
+            ]
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", marks: [{ type: "bold" }], text: "Tags: " },
+                  { type: "text", text: "Click '+ Tag' below the title to add searchable tags (#exam, #formula, #important) for quick filtering." }
+                ]
+              }
+            ]
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", marks: [{ type: "bold" }], text: "Starred Favorites: " },
+                  { type: "text", text: "Click the star icon next to the title to pin high-priority notes directly onto your Dashboard." }
+                ]
+              }
+            ]
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", marks: [{ type: "bold" }], text: "Archive: " },
+                  { type: "text", text: "Archive finished notes to keep your workspace clean without permanently deleting them." }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      // ── H2: 9. One-Click PDF Export ──
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "9. 📥 One-Click PDF Export" }]
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Click the " },
+          { type: "text", marks: [{ type: "bold" }], text: "Export PDF" },
+          { type: "text", text: " button in the top-right toolbar to download a clean, print-ready PDF document of your note." }
+        ]
+      },
+
+      // ── H3: Final Message ──
+      {
+        type: "heading",
+        attrs: { level: 3 },
+        content: [{ type: "text", text: "You're All Set! 🚀" }]
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Start by creating your first Subject Shelf, then add notes to it. Studora keeps out of your way so you can focus on " },
+          { type: "text", marks: [{ type: "bold" }], text: "learning and understanding" },
+          { type: "text", text: "!" }
+        ]
+      }
+    ]
+  };
+}
+
 export const getNote = query({
   args: { noteId: v.string() },
   handler: async (ctx, args) => {
@@ -34,6 +375,21 @@ export const getNote = query({
     const note = await ctx.db.get(normalizedId);
     if (!note) return null;
     if (note.userId !== userId) return null;
+
+    // Fallback: If this is a Welcome/Onboarding note and its content is missing or empty,
+    // automatically attach the full 9-section feature guide content.
+    if (
+      note.title.includes("Welcome to Studora") &&
+      (!note.content || !note.content.content || note.content.content.length <= 3)
+    ) {
+      const user = await ctx.db.get(note.userId);
+      const name = user?.name ? user.name.split(" ")[0] : "there";
+      return {
+        ...note,
+        content: buildGuideNoteContent(name),
+      };
+    }
+
     return note;
   },
 });
@@ -336,161 +692,216 @@ export const createOnboardingNote = mutation({
       .unique();
     if (!user) throw new Error("User not found");
 
-    // Idempotency: only create once
-    if (user.onboarding_note_created) return null;
-
     const firstName = (identity.name ?? "there").split(" ")[0];
     const now = new Date().toISOString();
 
-    const content = {
+    // Check if an onboarding note already exists for this user
+    const existingNotes = await ctx.db
+      .query("notes")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    const existingGuide = existingNotes.find(
+      (n) => n.local_id === `onboarding-${user._id}` || n.title.includes("Welcome to Studora")
+    );
+
+    const guideContent = {
       type: "doc",
       content: [
-        // ── Title / H1 ──────────────────────────────────────────────────
+        // ── H1 Title ──
         {
           type: "heading",
           attrs: { level: 1 },
-          content: [{ type: "text", text: `Welcome to Studora, ${firstName}! 👋` }]
+          content: [{ type: "text", text: `👋 Welcome to Studora — Complete Beginner's Guide` }]
         },
         {
           type: "paragraph",
           content: [
-            { type: "text", text: "This is your " },
-            { type: "text", marks: [{ type: "bold" }], text: "interactive welcome note" },
-            { type: "text", text: ". It showcases " },
-            { type: "text", marks: [{ type: "italic" }], text: "every formatting feature" },
-            { type: "text", text: " available in the Studora editor. Feel free to edit it, or delete it and start fresh!" }
+            { type: "text", text: "Welcome, " },
+            { type: "text", marks: [{ type: "bold" }], text: firstName },
+            { type: "text", text: "! This interactive guide explains " },
+            { type: "text", marks: [{ type: "bold" }], text: "how every Studora feature works" },
+            { type: "text", text: " to help you turn scattered notes into a structured study system. Feel free to edit, practice, or check off items below!" }
           ]
         },
 
-        // ── CALLOUT: Exam Point ─────────────────────────────────────────
+        // ── CALLOUT: Real-time Cloud Sync ──
         {
-          type: "academicCallout",
-          attrs: { calloutType: "exam-point" },
+          type: "studentBlock",
+          attrs: { type: "exampoint", label: "EXAM POINT" },
           content: [
-            { type: "text", marks: [{ type: "bold" }], text: "EXAM POINT — " },
-            { type: "text", text: "Studora saves your notes in real-time. Everything is synced to the cloud instantly — no manual save required." }
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", marks: [{ type: "bold" }], text: "⚡ REAL-TIME CLOUD SYNC & AUTO-SAVE: " },
+                { type: "text", text: "Studora saves your work automatically as you type. Everything is synced to the cloud instantly — no manual save button needed!" }
+              ]
+            }
           ]
         },
 
-        // ── H2: Formatting Basics ───────────────────────────────────────
+        // ── H2: 1. Text Formatting & Writing Fonts ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "✍️ Formatting Basics" }]
+          content: [{ type: "text", text: "1. ✍️ Text Formatting & Custom Writing Fonts" }]
         },
         {
           type: "paragraph",
           content: [
-            { type: "text", text: "Use the toolbar above to apply: " },
-            { type: "text", marks: [{ type: "bold" }], text: "Bold" },
+            { type: "text", text: "Use the top toolbar to style text with " },
+            { type: "text", marks: [{ type: "bold" }], text: "Bold (Ctrl+B)" },
             { type: "text", text: ", " },
-            { type: "text", marks: [{ type: "italic" }], text: "Italic" },
+            { type: "text", marks: [{ type: "italic" }], text: "Italic (Ctrl+I)" },
             { type: "text", text: ", " },
-            { type: "text", marks: [{ type: "underline" }], text: "Underline" },
+            { type: "text", marks: [{ type: "underline" }], text: "Underline (Ctrl+U)" },
             { type: "text", text: ", and " },
             { type: "text", marks: [{ type: "strike" }], text: "Strikethrough" },
-            { type: "text", text: ". You can also change the " },
-            { type: "text", marks: [{ type: "bold" }], text: "font size" },
-            { type: "text", text: " and " },
-            { type: "text", marks: [{ type: "bold" }], text: "writing font" },
-            { type: "text", text: " from the toolbar dropdowns." }
+            { type: "text", text: ". Change font sizes (14px–28px) or select your preferred handwriting font (" },
+            { type: "text", marks: [{ type: "italic" }], text: "Patrick Hand, Kalam, Inter, Lora, JetBrains Mono" },
+            { type: "text", text: ") from the font dropdown." }
           ]
         },
 
-        // ── H2: Academic Callouts ───────────────────────────────────────
+        // ── H2: 2. Academic Callout Blocks ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "📌 Academic Callouts" }]
+          content: [{ type: "text", text: "2. 📌 Academic Callout Blocks" }]
         },
         {
           type: "paragraph",
-          content: [{ type: "text", text: "Use the 'Academic' menu in the toolbar to insert study-specific callout blocks:" }]
-        },
-        {
-          type: "academicCallout",
-          attrs: { calloutType: "important-concept" },
-          content: [{ type: "text", text: "IMPORTANT CONCEPT — Callouts help you structure knowledge. Use them to flag key ideas, formulas, definitions, or common mistakes." }]
-        },
-        {
-          type: "academicCallout",
-          attrs: { calloutType: "definition" },
-          content: [{ type: "text", text: "DEFINITION — A callout is a styled block that visually separates critical information from regular note content." }]
-        },
-        {
-          type: "academicCallout",
-          attrs: { calloutType: "key-formula" },
-          content: [{ type: "text", text: "KEY FORMULA — Shannon Capacity: C = B × log₂(1 + S/N)" }]
-        },
-        {
-          type: "academicCallout",
-          attrs: { calloutType: "common-mistake" },
-          content: [{ type: "text", text: "COMMON MISTAKE — Confusing 2NF (partial dependency) with 3NF (transitive dependency). Remember: 3NF is stricter." }]
-        },
-        {
-          type: "academicCallout",
-          attrs: { calloutType: "remember-this" },
-          content: [{ type: "text", text: "REMEMBER THIS — Studora auto-saves every change. Your work is never lost." }]
+          content: [{ type: "text", text: "Click 'Academic Callout' in the toolbar to insert color-coded blocks designed for academic study:" }]
         },
 
-        // ── H2: Lists & Tasks ───────────────────────────────────────────
+        // CALLOUT: IMPORTANT CONCEPT
+        {
+          type: "studentBlock",
+          attrs: { type: "important", label: "IMPORTANT CONCEPT" },
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", marks: [{ type: "bold" }], text: "Core Concept: " },
+                { type: "text", text: "Academic callouts highlight critical info in your notes so you can quickly scan them during exam revision." }
+              ]
+            }
+          ]
+        },
+
+        // CALLOUT: DEFINITION
+        {
+          type: "studentBlock",
+          attrs: { type: "definition", label: "DEFINITION" },
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", marks: [{ type: "bold" }], text: "Active Recall: " },
+                { type: "text", text: "A study technique where you stimulate your memory for a piece of information rather than passively re-reading slides." }
+              ]
+            }
+          ]
+        },
+
+        // CALLOUT: KEY FORMULA
+        {
+          type: "studentBlock",
+          attrs: { type: "formula", label: "KEY FORMULA" },
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", marks: [{ type: "bold" }], text: "Euler's Identity: " },
+                { type: "text", text: "e^(iπ) + 1 = 0   |   Shannon Channel Capacity: C = B × log₂(1 + S/N)" }
+              ]
+            }
+          ]
+        },
+
+        // CALLOUT: COMMON MISTAKE
+        {
+          type: "studentBlock",
+          attrs: { type: "mistake", label: "COMMON MISTAKE" },
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", marks: [{ type: "bold" }], text: "Don't confuse 2NF and 3NF: " },
+                { type: "text", text: "2NF eliminates partial functional dependencies; 3NF eliminates transitive functional dependencies." }
+              ]
+            }
+          ]
+        },
+
+        // CALLOUT: REMEMBER THIS
+        {
+          type: "studentBlock",
+          attrs: { type: "remember", label: "REMEMBER THIS" },
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", marks: [{ type: "bold" }], text: "Pro Tip: " },
+                { type: "text", text: "Type '/' anywhere on a blank line to open the quick slash menu and insert blocks without touching the mouse!" }
+              ]
+            }
+          ]
+        },
+
+        // ── H2: 3. Lists & Interactive Checklists ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "📋 Lists & Task Checklists" }]
-        },
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "Create bullet lists, numbered lists, and interactive task checklists:" }]
+          content: [{ type: "text", text: "3. 📋 Lists & Interactive Task Checklists" }]
         },
         {
           type: "bulletList",
           content: [
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Bullet list item — great for concepts & ideas" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Nest items with Tab to create sub-points" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Hit Enter twice to exit the list" }] }] },
+            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Bullet lists for quick summaries and brainstorming" }] }] },
+            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Press Tab to indent and create nested sub-points" }] }] }
           ]
         },
         {
           type: "orderedList",
           content: [
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Numbered lists for step-by-step procedures" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Great for algorithms, lab steps, or proof sequences" }] }] },
+            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Step 1: Read lecture slides & textbook chapters" }] }] },
+            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Step 2: Write structured summary notes in Studora" }] }] },
+            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "Step 3: Test yourself using the interactive checklists below" }] }] }
           ]
         },
         {
           type: "taskList",
           content: [
-            { type: "taskItem", attrs: { checked: true }, content: [{ type: "paragraph", content: [{ type: "text", text: "Create your Studora account ✓" }] }] },
-            { type: "taskItem", attrs: { checked: true }, content: [{ type: "paragraph", content: [{ type: "text", text: "Open your first note ✓" }] }] },
-            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Create your first Academic Subject shelf" }] }] },
-            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Write your first real study note" }] }] },
-            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Tag a note with a topic tag (e.g. #algorithms)" }] }] },
-            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Try the Command Palette (Ctrl+K / ⌘K)" }] }] },
+            { type: "taskItem", attrs: { checked: true }, content: [{ type: "paragraph", content: [{ type: "text", text: "Sign up & open the Studora Starter Guide ✓" }] }] },
+            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Create a new Academic Subject on the sidebar (e.g. Computer Science, Physics)" }] }] },
+            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Create your first custom study note" }] }] },
+            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Add custom tags (#midterm, #formula) to organize your notes" }] }] },
+            { type: "taskItem", attrs: { checked: false }, content: [{ type: "paragraph", content: [{ type: "text", text: "Press Ctrl+K / ⌘K to try the global Command Palette" }] }] }
           ]
         },
 
-        // ── H2: Code Blocks ─────────────────────────────────────────────
+        // ── H2: 4. Code Blocks ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "💻 Code Blocks" }]
+          content: [{ type: "text", text: "4. 💻 Code Blocks with Syntax Highlighting" }]
         },
         {
           type: "paragraph",
-          content: [{ type: "text", text: "Perfect for CS notes — paste code with syntax highlighting:" }]
+          content: [{ type: "text", text: "Click the code icon (<>) or type ``` to format code for CS & engineering courses:" }]
         },
         {
           type: "codeBlock",
           attrs: { language: "python" },
-          content: [{ type: "text", text: "# Dijkstra's Shortest Path — O((V + E) log V)\nimport heapq\n\ndef dijkstra(graph, start):\n    dist = {node: float('inf') for node in graph}\n    dist[start] = 0\n    pq = [(0, start)]\n\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist[u]:\n            continue\n        for v, w in graph[u]:\n            if dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                heapq.heappush(pq, (dist[v], v))\n    return dist" }]
+          content: [{ type: "text", text: "# Dijkstra's Shortest Path Algorithm - O((V + E) log V)\nimport heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float('inf') for node in graph}\n    distances[start] = 0\n    pq = [(0, start)]\n\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > distances[u]: continue\n        for v, w in graph[u]:\n            if distances[u] + w < distances[v]:\n                distances[v] = distances[u] + w\n                heapq.heappush(pq, (distances[v], v))\n    return distances" }]
         },
 
-        // ── H2: Blockquote ──────────────────────────────────────────────
+        // ── H2: 5. Blockquotes ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "💬 Blockquotes" }]
+          content: [{ type: "text", text: "5. 💬 Blockquotes & Citations" }]
         },
         {
           type: "blockquote",
@@ -502,127 +913,163 @@ export const createOnboardingNote = mutation({
           ]
         },
 
-        // ── H2: Paper Styles ────────────────────────────────────────────
+        // ── H2: 6. Paper Styles ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "📄 Paper Styles & Writing Fonts" }]
+          content: [{ type: "text", text: "6. 📄 Custom Notebook Paper Styles" }]
         },
         {
           type: "paragraph",
           content: [
             { type: "text", text: "Click the " },
-            { type: "text", marks: [{ type: "bold" }], text: "paper icon" },
-            { type: "text", text: " in the toolbar to switch between:" }
+            { type: "text", marks: [{ type: "bold" }], text: "Paper Style button" },
+            { type: "text", text: " in the top-right toolbar to switch canvas background: " },
+            { type: "text", marks: [{ type: "bold" }], text: "Ruled" },
+            { type: "text", text: " (lined notebook), " },
+            { type: "text", marks: [{ type: "bold" }], text: "Grid" },
+            { type: "text", text: " (graph paper for math & engineering), " },
+            { type: "text", marks: [{ type: "bold" }], text: "Dotted" },
+            { type: "text", text: " (bullet journal), or " },
+            { type: "text", marks: [{ type: "bold" }], text: "Blank" },
+            { type: "text", text: "." }
           ]
+        },
+
+        // ── H2: 7. Floating Margin Sticky Notes ──
+        {
+          type: "heading",
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "7. 🗒️ Margin Sticky Notes" }]
+        },
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Click " },
+            { type: "text", marks: [{ type: "bold" }], text: "+ Sticky Note" },
+            { type: "text", text: " to drop draggable, resizable sticky notes onto your document canvas. Perfect for side-margin annotations, quick formulas, and study reminders!" }
+          ]
+        },
+
+        // ── H2: 8. Organization Features ──
+        {
+          type: "heading",
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "8. 🗂️ Subject Shelves, Topics & Tag Organization" }]
         },
         {
           type: "bulletList",
           content: [
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Ruled" }, { type: "text", text: " — Classic lined notebook paper (default)" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Grid" }, { type: "text", text: " — Graph paper, great for diagrams & math" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Dotted" }, { type: "text", text: " — Bullet-journal style" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Blank" }, { type: "text", text: " — Clean minimal writing surface" }] }] },
-          ]
-        },
-        {
-          type: "paragraph",
-          content: [
-            { type: "text", text: "Use the " },
-            { type: "text", marks: [{ type: "bold" }], text: "font selector" },
-            { type: "text", text: " to switch between handwriting-style fonts like " },
-            { type: "text", marks: [{ type: "italic" }], text: "Patrick Hand" },
-            { type: "text", text: ", " },
-            { type: "text", marks: [{ type: "italic" }], text: "Kalam" },
-            { type: "text", text: ", or clean " },
-            { type: "text", marks: [{ type: "italic" }], text: "Inter" },
-            { type: "text", text: "." }
+            {
+              type: "listItem",
+              content: [
+                {
+                  type: "paragraph",
+                  content: [
+                    { type: "text", marks: [{ type: "bold" }], text: "Academic Subjects Shelf: " },
+                    { type: "text", text: "Organize notes into color-coded subject folders on the left sidebar (e.g. Computer Science, Physics, Economics)." }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "listItem",
+              content: [
+                {
+                  type: "paragraph",
+                  content: [
+                    { type: "text", marks: [{ type: "bold" }], text: "Tags: " },
+                    { type: "text", text: "Click '+ Tag' below the title to add searchable tags (#exam, #formula, #important) for quick filtering." }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "listItem",
+              content: [
+                {
+                  type: "paragraph",
+                  content: [
+                    { type: "text", marks: [{ type: "bold" }], text: "Starred Favorites: " },
+                    { type: "text", text: "Click the star icon next to the title to pin high-priority notes directly onto your Dashboard." }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "listItem",
+              content: [
+                {
+                  type: "paragraph",
+                  content: [
+                    { type: "text", marks: [{ type: "bold" }], text: "Archive: " },
+                    { type: "text", text: "Archive finished notes to keep your workspace clean without permanently deleting them." }
+                  ]
+                }
+              ]
+            }
           ]
         },
 
-        // ── H2: Sticky Notes ────────────────────────────────────────────
+        // ── H2: 9. One-Click PDF Export ──
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "🗒️ Sticky Notes" }]
+          content: [{ type: "text", text: "9. 📥 One-Click PDF Export" }]
         },
         {
           type: "paragraph",
           content: [
             { type: "text", text: "Click the " },
-            { type: "text", marks: [{ type: "bold" }], text: "Sticky Note" },
-            { type: "text", text: " button in the toolbar to place floating notes on the canvas. Drag them anywhere, resize them, and change their color. Perfect for side-margin annotations and quick reminders." }
+            { type: "text", marks: [{ type: "bold" }], text: "Export PDF" },
+            { type: "text", text: " button in the top-right toolbar to download a clean, print-ready PDF document of your note." }
           ]
         },
 
-        // ── H2: Organization ────────────────────────────────────────────
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "🗂️ Organization Features" }]
-        },
-        {
-          type: "orderedList",
-          content: [
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Subjects Shelf" }, { type: "text", text: " — Group notes by academic subject (e.g. Data Structures, Physics, Economics)" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Topics" }, { type: "text", text: " — Nest topics inside subjects for deeper organization (e.g. Subject → Topic → Note)" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Tags" }, { type: "text", text: " — Add searchable tags to any note (e.g. #midterm, #formula, #todo)" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Star / Favourite" }, { type: "text", text: " — Star important notes to pin them to the Dashboard quick-access panel" }] }] },
-            { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", marks: [{ type: "bold" }], text: "Archive" }, { type: "text", text: " — Archive old notes you don't need but want to keep. Restore any time." }] }] },
-          ]
-        },
-
-        // ── H2: Search & Command ────────────────────────────────────────
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "🔍 Search & Command Palette" }]
-        },
-        {
-          type: "paragraph",
-          content: [
-            { type: "text", text: "Press " },
-            { type: "text", marks: [{ type: "code" }], text: "Ctrl+K" },
-            { type: "text", text: " (or " },
-            { type: "text", marks: [{ type: "code" }], text: "⌘K" },
-            { type: "text", text: " on Mac) to open the Command Palette — quickly create notes, navigate pages, or toggle dark/light theme without leaving the keyboard." }
-          ]
-        },
-        {
-          type: "paragraph",
-          content: [
-            { type: "text", text: "Use the " },
-            { type: "text", marks: [{ type: "bold" }], text: "Search page" },
-            { type: "text", text: " (magnifier icon in sidebar) to search across all your notes by title, content, or tag." }
-          ]
-        },
-
-        // ── Final note ──────────────────────────────────────────────────
+        // ── H3: Final Message ──
         {
           type: "heading",
           attrs: { level: 3 },
-          content: [{ type: "text", text: "You're all set! 🚀" }]
+          content: [{ type: "text", text: "You're All Set! 🚀" }]
         },
         {
           type: "paragraph",
           content: [
-            { type: "text", text: "Start by creating your first Subject Shelf, then add notes to it. Studora will stay out of your way and let you focus on " },
-            { type: "text", marks: [{ type: "bold" }], text: "learning, not managing files" },
-            { type: "text", text: "." }
+            { type: "text", text: "Start by creating your first Subject Shelf, then add notes to it. Studora keeps out of your way so you can focus on " },
+            { type: "text", marks: [{ type: "bold" }], text: "learning and understanding" },
+            { type: "text", text: "!" }
           ]
-        },
+        }
       ]
     };
 
-    const contentText = `Welcome to Studora! This note showcases every editor feature: headings, callouts (exam-point, definition, key-formula, common-mistake, remember-this), bullet lists, numbered lists, task checklists, code blocks, blockquotes, paper styles, sticky notes, subject organization, tags, starring, archive, and the Command Palette.`;
+    const contentText = `👋 Welcome to Studora — Complete Beginner's Guide. This interactive guide explains how every Studora feature works: real-time cloud auto-save, text formatting & custom writing fonts, academic callouts (exam point, important concept, definition, key formula, common mistake, remember this), bullet/numbered lists & interactive task checklists, code blocks with syntax highlighting, blockquotes, custom paper styles (ruled, grid, dotted, blank), margin sticky notes, subject shelves & topic organization, tags & starred favorites, and one-click PDF export.`;
+
+    if (existingGuide) {
+      // Patch existing onboarding note with full guide content
+      await ctx.db.patch(existingGuide._id, {
+        title: `👋 Welcome to Studora, ${firstName}!`,
+        content: guideContent,
+        content_text: contentText,
+        word_count: 520,
+        reading_time_mins: 3,
+        is_pinned: true,
+        is_favorite: true,
+        tags: ["studora", "guide", "features"],
+        updated_at: now,
+        last_saved_at: Date.now(),
+      });
+      await ctx.db.patch(user._id, { onboarding_note_created: true });
+      return existingGuide._id;
+    }
 
     const noteId = await ctx.db.insert("notes", {
       userId: user._id,
       title: `👋 Welcome to Studora, ${firstName}!`,
-      content,
+      content: guideContent,
       content_text: contentText,
-      word_count: 320,
-      reading_time_mins: 2,
+      word_count: 520,
+      reading_time_mins: 3,
       is_pinned: true,
       is_favorite: true,
       local_id: `onboarding-${user._id}`,
@@ -632,9 +1079,7 @@ export const createOnboardingNote = mutation({
       last_saved_at: Date.now(),
     });
 
-    // Mark user so we never create this again
     await ctx.db.patch(user._id, { onboarding_note_created: true });
-
     return noteId;
   }
 });

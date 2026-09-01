@@ -50,9 +50,23 @@ export default function DashboardPage() {
     }
   }
 
+  const createOnboardingNoteMutation = useMutation(api.notes.createOnboardingNote)
+
   const handleResetSampleData = async () => {
-    // Resetting sample data is disabled in cloud mode
-    alert("Resetting sample data is disabled in cloud mode.")
+    try {
+      const noteId = await createOnboardingNoteMutation()
+      if (noteId) {
+        router.push(`/notes/${noteId}`)
+      } else {
+        // If already created, find the onboarding note
+        const existing = notes?.find(n => n.title.includes("Welcome to Studora"))
+        if (existing) {
+          router.push(`/notes/${existing._id}`)
+        }
+      }
+    } catch (err) {
+      console.error("Failed to reset starter guide:", err)
+    }
   }
 
   const pinnedNotes = notes?.filter((n) => n.is_pinned || n.is_favorite) || []

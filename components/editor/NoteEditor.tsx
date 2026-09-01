@@ -243,6 +243,15 @@ export function NoteEditor({ initialNote, onSave }: NoteEditorProps) {
     }
   }, [editor, isReadingMode])
 
+  // Sync initial content from DB into TipTap if editor is mounted
+  const hasSyncedRef = useRef(false)
+  useEffect(() => {
+    if (editor && initialNote.content && !hasSyncedRef.current) {
+      hasSyncedRef.current = true
+      editor.commands.setContent(initialNote.content)
+    }
+  }, [editor, initialNote.content])
+
   // Listen for '/' slash command key in editor (only when editable)
   useEffect(() => {
     if (!editor || isReadingMode) return
